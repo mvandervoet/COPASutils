@@ -60,7 +60,7 @@ procSetup <- function(file, tofmin=60, tofmax=2000, extmin=20, extmax=5000) {
 
 
 processWells <- function(modplate, strains=NULL, quantiles=FALSE, log=FALSE) {
-    processed <- ddply(.data=modplate[modplate$call50=="object" | modplate$TOF == -1,], .variables=c("row", "col"),
+    processed <- suppressWarnings(ddply(.data=modplate[modplate$call50=="object" | modplate$TOF == -1,], .variables=c("row", "col"),
                        .fun=function(x){c(n=length(x$TOF),
                                           n.sorted=sum(x$sort==6),
                                           meanTOF=mean(x$TOF),
@@ -205,7 +205,7 @@ processWells <- function(modplate, strains=NULL, quantiles=FALSE, log=FALSE) {
                                               }
                                               )
                                           }
-                       )}, .drop=F)
+                       )}, .drop=F))
     if(is.null(strains)){
         analysis <- processed
     } else {
@@ -243,8 +243,21 @@ possContam <- function(procDataFrame){
     } 
 }
 
-#Function to read in txt file from sorter
-readSorter <- function(file, tofmin=60, tofmax=2000, extmin=20, extmax=5000)  {
+
+#' Read in raw sorter data
+#' 
+#' Reads a raw sorter file into a dataframe, removing NA values and any objects not fitting in to the min and max cut offs
+#' @param file path to sorter data file
+#' @param tofmin minimum cut off for time of flight, defaults to 0
+#' @param tofmax maximum cut off for time of flight, defaults to 10000
+#' @param extmin minimum cut off for extinction, defaults to 0
+#' @param extmax maximum cut off for extinction, defaults to 10000
+#' @export
+#' @examples
+#' readSorter("SortTest.txt", 60, 2000, 60, 5000)
+#' readSorter("SortTest.txt", tofmin=60, extmin=60)
+
+readSorter <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000)  {
     data <- read.delim(file=file, header=T, na.strings=c("n/a"), as.is=T, stringsAsFactors=F)
     data <- data[!is.na(data$TOF),]
     data <- data[,!is.na(data[1,])]
@@ -256,11 +269,29 @@ readSorter <- function(file, tofmin=60, tofmax=2000, extmin=20, extmax=5000)  {
 }
 
 
-#Function to make time per well go from 0 to X as opposed to running for the entire plate
+#' Set time to relative
+#' 
+#' Sets time relative to first well run, used in other functions, not meant to be used on its own
+#' @param plate a plate to extract the time from
+
 extractTime <- function(plate) {plate$time <- plate$time - min(plate$time); return(plate) }
 
-#Function to take sorter raw dataframe and process to determine worm or bubble using SVM
-readSorterData <- function(file, tofmin=60, tofmax=2000, extmin=20, extmax=5000, SVM=TRUE) {
+
+#' Read in the sorter data with minimal processing
+#' 
+#' Returns a minimally processed data frame, optionally with SVM-mediated bubble prediction
+#' @param file path to sorter data file
+#' @param tofmin minimum cut off for time of flight, defaults to 0
+#' @param tofmax maximum cut off for time of flight, defaults to 10000
+#' @param extmin minimum cut off for extinction, defaults to 0
+#' @param extmax maximum cut off for extinction, defaults to 10000
+#' @param SVM logical dictating whether to predict bubbles with the SVM
+#' @export
+#' @examples
+#' readSorterData("SortTest.txt", 60, 2000, 60, 5000, FALSE)
+#' readSorterData("SortTest.txt", tofmin=60, extmin=60, TRUE)
+
+readSorterData <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=TRUE) {
     require(plyr)
     plate <- readSorter(file, tofmin, tofmax, extmin, extmax)
     modplate <- with(plate, data.frame(row=Row, col=as.factor(Column), sort=Status.sort, TOF=TOF, EXT=EXT, time=Time.Stamp, green=Green, yellow=Yellow, red=Red))
@@ -276,15 +307,16 @@ readSorterData <- function(file, tofmin=60, tofmax=2000, extmin=20, extmax=5000,
 }
 
 
-
-
-
 #' Remove wells from a data frame representing a plate
 #' 
-#' Returns a data frame representing a plate with bad wells removed (either with phenotype variables set to NA or rows dropped entirely)
-#' @param plate a processed data frame that has been run through process pheno
+#' Returns a data frame representing a plate with bad wells removed (either with phenotype variables set to NA or rows dropped entirely).
+#' @param plate a processed data frame that has been run through processWells
 #' @param badWells a character vector consisting of all wells to remove
-#' @param 
+#' @param drop a logical value dictating whether to drop wells from the data frame or set measured values to NA, defaults to FALSE
+#' @export
+#' @examples
+#' removeWells(processedPlate, c("A1", "B7", "F12")) #Sets phenotype values for wells A1, B7, and F12 to NA
+#' removeWells(processedPlate, c("A1", "B7", "F12"), drop=TRUE) #Removes rows corresponding to wells A1, B7, and F12
 
 removeWells <- function(plate, badWells, drop=FALSE) {
     sp.bw <- str_split(badWells, "", 3)
