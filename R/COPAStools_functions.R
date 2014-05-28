@@ -277,6 +277,7 @@ removeWells <- function(plate, badWells, drop=FALSE) {
 #' plateTrait(plate, "TOF", type="hist") #will create a histogram of TOF for each well
 
 plotTrait = function(plate, trait, trait2=NULL, type="heat"){
+    plate = fillWells(plate)
     plot = ggplot(plate)
     if(type == "heat"){
         plot = plot + geom_rect(aes_string(xmin=0,xmax=5,ymin=0,ymax=5,fill=trait))+
@@ -294,4 +295,24 @@ plotTrait = function(plate, trait, trait2=NULL, type="heat"){
 }
 
 
+#' Fill in any missing well rows with NA values
+#' 
+#' Returns a data frame with any missing wells filled in as NA for all measured data
+#' @param plate the data frame of the plate to filled
+#' @param wells the number of wells of the plate, 96 and 48 are only valid entries, defaults to 96
+#' @export
+#' @examples
+#' fillWells(plate) #returns the plate data frame with all missing wells filled with NAs
+
+fillWells = function(plate, wells=96){
+    if(wells == 96){
+        complete = data.frame(row=rep(LETTERS[1:8], each=12), col=rep(1:12, 8))
+    } else if(wells == 48){
+        complete = data.frame(row=rep(LETTERS[1:6], each=8), col=rep(1:8, 6))
+    } else {
+        stop("Invalid number of wells entered. Only 96 and 48 well plates can be filled.")
+    }
+    plate = merge(plate, complete, by=c("row", "col"), all=TRUE)
+    return(plate)
+}
 
