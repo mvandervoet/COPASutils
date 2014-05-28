@@ -1,6 +1,6 @@
 #' Read in raw sorter data
 #' 
-#' Reads a raw sorter file into a dataframe, removing NA values and any objects not fitting in to the min and max cut offs
+#' Reads a raw sorter file into a dataframe, removing NA values and any objects not fitting in to the min and max cut offs.
 #' @param file path to sorter data file
 #' @param tofmin minimum cut off for time of flight, defaults to 0
 #' @param tofmax maximum cut off for time of flight, defaults to 10000
@@ -25,7 +25,7 @@ readSorter <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000)  {
 
 #' Set time to relative
 #' 
-#' Sets time relative to first well run, used in other functions, not meant to be used on its own
+#' Sets time relative to first well run, used in other functions, not meant to be used on its own.
 #' @param plate a plate to extract the time from
 
 extractTime <- function(plate) {plate$time <- plate$time - min(plate$time); return(plate) }
@@ -33,7 +33,7 @@ extractTime <- function(plate) {plate$time <- plate$time - min(plate$time); retu
 
 #' Read in the sorter data with minimal processing
 #' 
-#' Returns a minimally processed data frame, optionally with SVM-mediated bubble prediction
+#' Returns a minimally processed data frame, optionally with SVM-mediated bubble prediction.
 #' @param file path to sorter data file
 #' @param tofmin minimum cut off for time of flight, defaults to 0
 #' @param tofmax maximum cut off for time of flight, defaults to 10000
@@ -45,14 +45,11 @@ extractTime <- function(plate) {plate$time <- plate$time - min(plate$time); retu
 #' readSorterData("SortTest.txt", 60, 2000, 60, 5000, FALSE)
 #' readSorterData("SortTest.txt", tofmin=60, extmin=60, TRUE)
 
-readSorterData <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=TRUE) {
-    require(plyr)
+readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=TRUE) {
     plate <- readSorter(file, tofmin, tofmax, extmin, extmax)
     modplate <- with(plate, data.frame(row=Row, col=as.factor(Column), sort=Status.sort, TOF=TOF, EXT=EXT, time=Time.Stamp, green=Green, yellow=Yellow, red=Red))
     modplate <- ddply(.data=modplate, .variables=c("row", "col"), .fun=extractTime)
     if(SVM){
-        require(kernlab)
-        load("~/Dropbox/Biosort/Scripts and functions/bubbleSVMmodel_noProfiler.RData")
         plateprediction <- predict(bubbleSVMmodel_noProfiler, modplate[,3:length(modplate)], type="probabilities")
         modplate$object <- plateprediction[,"1"]
         modplate$call50 <- factor(as.numeric(modplate$object>0.5), levels=c(1,0), labels=c("object", "bubble"))
@@ -63,7 +60,7 @@ readSorterData <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000,
 
 #' Condense all objects examined to appropriate well
 #' 
-#' Returns a data frame with one row per well with summary statistics
+#' Returns a data frame with one row per well with summary statistics.
 #' @param plate plate to summarize, must be run through readSorterData, not readSorter
 #' @param strains a vector of all strain (sample) names input row-wise to add to the data frame
 #' @param quantiles if TRUE, columns of trait quantiles (every fifth) will be added to the output dataframe, defaults to FALSE
@@ -73,7 +70,7 @@ readSorterData <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000,
 #' processWells(plate, quantiles=TRUE)
 #' processWells(plate, quantiles=TRUE, log=TRUE)
 
-processWells <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE) {
+summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE) {
     require(plyr)
     processed <- suppressWarnings(ddply(.data=plate[plate$call50=="object" | plate$TOF == -1,], .variables=c("row", "col"),
                        .fun=function(x){c(n=length(x$TOF),
@@ -246,17 +243,17 @@ processWells <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE) {
 
 removeWells <- function(plate, badWells, drop=FALSE) {
     sp.bw <- str_split(badWells, "", 3)
-    if(drop){
+    if(!drop){
         for (i in seq(1, length(sp.bw))) {
             row <- sp.bw[[i]][2]
             col <- sp.bw[[i]][3]
-            proc[which(plate$row == row & plate$col == col),-(1:3)] <- NA
+            plate[which(plate$row == row & plate$col == col),-(1:2)] <- NA
         }
     } else {
         for (i in seq(1, length(sp.bw))) {
             row <- sp.bw[[i]][2]
             col <- sp.bw[[i]][3]
-            plate = proc[(which(plate$row == row & plate$col == col)),]
+            plate = plate[plate$row != row & plate$col != col,]
         }
     }
     return(plate)
@@ -266,15 +263,35 @@ removeWells <- function(plate, badWells, drop=FALSE) {
 
 
 
+#' Create faceted plots for every well in a 96-well plate
 #' 
+#' Returns ggplot2 object that is facted by row and column. By default, it will plot a heat map for the trait specified as a string. Other options include scatterplots and histograms.
+#' @param plate a plate data frame, either summarized or unsummarized, to plot
+#' @param trait the trait to plot in a heatmap or histogram or the independent variable in a scatterplot, enter as a string
+#' @param trait2 the trait which will be the dependent variable for the scatter plot, enter as a string
+#' @param type the type of plot, either "heat" for heatmap, "scatter" for scatter plot, or "hist" for histogram, defaults to "heat"
+#' @export
+#' @examples
+#' plotTrait(plate, "n") #will create a heatmap of the number of objects per well from summarized data
+#' plateTrait(plate, "TOF", "EXT", "scatter") #will create a scatter plot of EXT by TOF for each well
+#' plateTrait(plate, "TOF", type="hist") #will create a histogram of TOF for each well
 
-plotTrait = function(plate, trait){
-    ggplot(plate)+geom_rect(aes(xmin=0,xmax=5,ymin=0,ymax=5,fill=get(trait)))+
-        facet_grid(row~col)+geom_text(aes(x=2.5,y=2.5,label=get(trait),colour="white"))+
-        theme(axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), axis.text.x=element_blank(), axis.text.y=element_blank())+
-        xlab("columns")+ylab("rows")
+plotTrait = function(plate, trait, trait2=NULL, type="heat"){
+    plot = ggplot(plate)
+    if(type == "heat"){
+        plot = plot + geom_rect(aes_string(xmin=0,xmax=5,ymin=0,ymax=5,fill=trait))+
+             geom_text(aes_string(x=2.5,y=2.5,label=trait))+presentation+
+             theme(axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), axis.text.x=element_blank(), axis.text.y=element_blank())
+    }
+    if(type == "scatter"){
+        plot = plot + geom_point(aes_string(x = trait, y = trait2)) + presentation
+    }
+    if(type == "hist"){
+        plot = plot + geom_histogram(aes_string(x = trait)) + presentation
+    }
+    plot = plot + xlab("columns")+ylab("rows") + facet_grid(row~col)
+    return(plot)
 }
-
 
 
 
