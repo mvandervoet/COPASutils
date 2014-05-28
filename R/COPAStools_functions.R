@@ -287,7 +287,7 @@ plotTrait = function(plate, trait, trait2=NULL, type="heat"){
         plot = plot + geom_point(aes_string(x = trait, y = trait2)) + presentation
     }
     if(type == "hist"){
-        plot = plot + geom_histogram(aes_string(x = trait)) + presentation
+        plot = plot + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/30) + presentation
     }
     plot = plot + xlab("columns")+ylab("rows") + facet_grid(row~col)
     return(plot)
