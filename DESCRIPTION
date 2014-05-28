@@ -6,7 +6,8 @@ Description: Quick and easy analysis of data from Union Biometrica COPAS
     Biosort large particle flow cytometer
 Depends:
     R (>= 3.0.2),
-    plyr (>= 1.8.1),
-    kernlab (>= 0.9-19)
+    plyr (>= 1.8),
+    kernlab (>= 0.9),
+    ggplot2 (>= 0.9)
 License: GPL (>= 2)
 LazyData: true
