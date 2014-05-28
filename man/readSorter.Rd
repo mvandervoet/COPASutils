@@ -17,7 +17,7 @@ readSorter(file, tofmin = 0, tofmax = 10000, extmin = 0, extmax = 10000)
 \item{extmax}{maximum cut off for extinction, defaults to 10000}
 }
 \description{
-Reads a raw sorter file into a dataframe, removing NA values and any objects not fitting in to the min and max cut offs
+Reads a raw sorter file into a dataframe, removing NA values and any objects not fitting in to the min and max cut offs.
 }
 \examples{
 readSorter("SortTest.txt", 60, 2000, 60, 5000)

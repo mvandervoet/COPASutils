@@ -9,6 +9,6 @@ extractTime(plate)
 \item{plate}{a plate to extract the time from}
 }
 \description{
-Sets time relative to first well run, used in other functions, not meant to be used on its own
+Sets time relative to first well run, used in other functions, not meant to be used on its own.
 }
 
