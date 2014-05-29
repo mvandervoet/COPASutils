@@ -281,16 +281,17 @@ plotTrait = function(plate, trait, trait2=NULL, type="heat"){
     plot = ggplot(plate)
     if(type == "heat"){
         plot = plot + geom_rect(aes_string(xmin=0,xmax=5,ymin=0,ymax=5,fill=trait))+
-             geom_text(aes_string(x=2.5,y=2.5,label=trait))+presentation+
-             theme(axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), axis.text.x=element_blank(), axis.text.y=element_blank())
+               geom_text(aes_string(x=2.5,y=2.5,label=trait))+presentation+
+               theme(axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), axis.text.x=element_blank(), axis.text.y=element_blank()) +
+               xlab("columns") + ylab("rows")
     }
     if(type == "scatter"){
-        plot = plot + geom_point(aes_string(x = trait, y = trait2)) + presentation
+        plot = plot + geom_point(aes_string(x = trait, y = trait2)) + presentation + xlab(trait) + ylab(trait2)
     }
     if(type == "hist"){
-        plot = plot + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/30) + presentation
+        plot = plot + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/30) + presentation + xlab("columns") + ylab("rows")
     }
-    plot = plot + xlab("columns")+ylab("rows") + facet_grid(row~col)
+    plot = plot + facet_grid(row~col)
     return(plot)
 }
 
@@ -317,12 +318,40 @@ fillWells = function(plate, wells=96){
 }
 
 
-plotCorMatrix = function(plate1, plate2){
-    plate11 = summarizePlate(plate1)
-    plate22 = summarizePlate(plate1)[,]
-    
-    cor(plate11, plate22)
-    
-    ggplot(df2, aes(Var1, Var2, fill = value)) + geom_tile() + scale_fill_gradient2(low = "purple", high = "red", mid = "green") + theme(text = element_text(size=4), axis.text.x=element_text(angle = 90, hjust = 0))
+
+
+plotCorMatrix = function(plate1, plate2=plate1){
+    corDF = melt(cor(plate1[,-(1:2)], plate2[,-(1:2)], use = "complete.obs"))
+    colnames(corDF) = c("Plate1", "Plate2", "Correlation")
+    ggplot(corDF, aes(Plate1, Plate2, fill = Correlation)) + 
+        geom_tile() + scale_fill_gradient2("Correlation",low = "blue", high = "red", mid = "green", limits = c(-1,1)) +
+        theme(axis.text.x=element_text(angle = 90, hjust = 1)) + xlab("Plate 1") + ylab("Plate 2")
 }
+
+
+edgeEffect = function(plate, trait=NULL){
+    edgeWells = plate[plate$row == "A" | plate$row == "H" | plate$col == 1 | plate$col == 12,-(1:2)]
+    edgeWells$pos = "edge"
+    centerWells = plate[!(plate$row == "A" | plate$row == "H" | plate$col == 1 | plate$col == 12),-(1:2)]
+    centerWells$pos = "center"
+    total = rbind(edgeWells, centerWells)
+    pos = total$pos
+    total = total[,-(ncol(total))]
+    if(missing(trait)){
+        pval = as.data.frame(apply(total, 2, function(x){
+            t.test(x[which(pos == "edge")], x[which(pos == "center")])$p.value
+        }))
+        pval$Trait = rownames(pval)
+        rownames(pval) = NULL
+        colnames(pval) = c("PValue", "Trait")
+        pval = pval[,c(2,1)]
+    } else {
+        pval = t.test(total[,trait][which(pos == "edge")], total[,trait][which(pos == "center")])$p.value
+    }
+    return(pval)
+}
+
+
+
+plotByWell()
 
