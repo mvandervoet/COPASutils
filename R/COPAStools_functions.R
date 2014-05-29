@@ -316,3 +316,13 @@ fillWells = function(plate, wells=96){
     return(plate)
 }
 
+
+plotCorMatrix = function(plate1, plate2){
+    plate11 = summarizePlate(plate1)
+    plate22 = summarizePlate(plate1)[,]
+    
+    cor(plate11, plate22)
+    
+    ggplot(df2, aes(Var1, Var2, fill = value)) + geom_tile() + scale_fill_gradient2(low = "purple", high = "red", mid = "green") + theme(text = element_text(size=4), axis.text.x=element_text(angle = 90, hjust = 0))
+}
+
