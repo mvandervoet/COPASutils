@@ -348,10 +348,7 @@ plotCorMatrix = function(plate1, plate2=plate1){
 
 #' Detect edge effects on 96-well plates
 #' 
-#' Test for an effect of the position of wells in a 96 well plate. This function
-#' will split a plate population by edge wells and center well and test the two
-#' populations for significant differences in either a specific trait or all traits
-#' if a trait is not specified.
+#' Test for an effect of the position of wells in a 96 well plate. This function will split a plate population by edge wells and center wells and test the two populations for significant differences in either a specific trait or all traits if a trait is not specified.
 #' @param plate a summarized and filled plate data frame
 #' @param trait a singular trait to test, defaults to NULL and will test all traits
 #' @export
@@ -385,4 +382,10 @@ edgeEffect = function(plate, trait=NULL){
 }
 
 
-
+plotCompare = function(plates, trait){
+    wholeDF = ldply(plates, data.frame)
+    return(wholeDF)
+    if(length(unique(nrow(plates))) == 1){
+        ggplot(wholeDF, aes(y = ))
+    }
+}

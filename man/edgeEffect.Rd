@@ -11,10 +11,7 @@ edgeEffect(plate, trait = NULL)
 \item{trait}{a singular trait to test, defaults to NULL and will test all traits}
 }
 \description{
-Test for an effect of the position of wells in a 96 well plate. This function
-will split a plate population by edge wells and center well and test the two
-populations for significant differences in either a specific trait or all traits
-if a trait is not specified.
+Test for an effect of the position of wells in a 96 well plate. This function will split a plate population by edge wells and center wells and test the two populations for significant differences in either a specific trait or all traits if a trait is not specified.
 }
 \examples{
 edgeEffect(plateA) #will return a dataframe of all pvalues for all trait tests
