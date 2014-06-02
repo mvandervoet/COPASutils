@@ -1,5 +1,5 @@
-Package: COPAStools
-Title: COPAStools
+Package: COPASutils
+Title: COPASutils
 Version: 0.1
 Authors@R: "Tyler Shimko <TShimko126@gmail.com> [aut, cre]"
 Description: Quick and easy analysis of data from Union Biometrica COPAS
