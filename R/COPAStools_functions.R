@@ -42,13 +42,17 @@ extractTime <- function(plate) {plate$time <- plate$time - min(plate$time); retu
 #' @param SVM logical dictating whether to predict bubbles with the SVM
 #' @export
 #' @examples
-#' readSorterData("SortTest.txt", 60, 2000, 60, 5000, FALSE)
-#' readSorterData("SortTest.txt", tofmin=60, extmin=60, TRUE)
+#' readSorterData("SortTest.txt", 60, 2000, 60, 5000, SVM=FALSE)
+#' readSorterData("SortTest.txt", tofmin=60, extmin=60, SVM=TRUE, normalize=TRUE)
 
-readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=TRUE) {
+readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=TRUE, normalize=FALSE) {
     plate <- readSorter(file, tofmin, tofmax, extmin, extmax)
     modplate <- with(plate, data.frame(row=Row, col=as.factor(Column), sort=Status.sort, TOF=TOF, EXT=EXT, time=Time.Stamp, green=Green, yellow=Yellow, red=Red))
     modplate <- ddply(.data=modplate, .variables=c("row", "col"), .fun=extractTime)
+    if(normalize){
+        modplate[,10:13] <- apply(modplate[,c(5, 7:9)], 2, function(x){x/modplate$TOF})
+        colnames(modplate)[10:13] <- c("norm.EXT", "norm.green", "norm.yellow", "norm.red")
+    }
     if(SVM){
         plateprediction <- predict(bubbleSVMmodel_noProfiler, modplate[,3:length(modplate)], type="probabilities")
         modplate$object <- plateprediction[,"1"]
@@ -260,9 +264,6 @@ removeWells <- function(plate, badWells, drop=FALSE) {
 }
 
 
-
-
-
 #' Create faceted plots for every well in a 96-well plate
 #' 
 #' Returns ggplot2 object that is facted by row and column. By default, it will plot a heat map for the trait specified as a string. Other options include scatterplots and histograms.
@@ -318,9 +319,25 @@ fillWells = function(plate, wells=96){
 }
 
 
-
+#' Plot a correlation matrix within a plate or between plates
+#' 
+#' Returns a ggplot2 object of a correlation plot for all traits within a single plate or between two plates
+#' @param plate1 one plate to compare in the correlation matrix
+#' @param plate2 an optional plate to compare plate1 to, defaults to plate1, if no argument is entered plate1 will be compared to itself
+#' @export
+#' @examples
+#' plotCorMatrix(plateA, plateB) #will plot a correlation matrix for all traits between plateA and plateB
+#' plotCorMatrix(plateA) #will plot a correlation matrix for all traits within plateA
 
 plotCorMatrix = function(plate1, plate2=plate1){
+    plate1 = fillWells(plate1)
+    plate2 = fillWells(plate2)
+    if(nrow(plate1) != 96 | nrow(plate2) != 96){
+        stop("Both plates must be summarized")
+    }
+    if(nrow(plate1) == nrow(plate2)){
+        stop("Both plates to have the same number of traits")
+    }
     corDF = melt(cor(plate1[,-(1:2)], plate2[,-(1:2)], use = "complete.obs"))
     colnames(corDF) = c("Plate1", "Plate2", "Correlation")
     ggplot(corDF, aes(Plate1, Plate2, fill = Correlation)) + 
@@ -329,7 +346,23 @@ plotCorMatrix = function(plate1, plate2=plate1){
 }
 
 
+#' Detect edge effects on 96-well plates
+#' 
+#' Test for an effect of the position of wells in a 96 well plate. This function
+#' will split a plate population by edge wells and center well and test the two
+#' populations for significant differences in either a specific trait or all traits
+#' if a trait is not specified.
+#' @param plate a summarized and filled plate data frame
+#' @param trait a singular trait to test, defaults to NULL and will test all traits
+#' @export
+#' @examples
+#' edgeEffect(plateA) #will return a dataframe of all pvalues for all trait tests
+#' edgeEffect(plateA, "n") #will return a single value for the p value of the test with respect to the number of worms per well
+
 edgeEffect = function(plate, trait=NULL){
+    if(nrow(plate) != 96){
+        stop("Plate must be summarized and filled first")
+    }
     edgeWells = plate[plate$row == "A" | plate$row == "H" | plate$col == 1 | plate$col == 12,-(1:2)]
     edgeWells$pos = "edge"
     centerWells = plate[!(plate$row == "A" | plate$row == "H" | plate$col == 1 | plate$col == 12),-(1:2)]
@@ -352,6 +385,4 @@ edgeEffect = function(plate, trait=NULL){
 }
 
 
-
-plotByWell()
 
