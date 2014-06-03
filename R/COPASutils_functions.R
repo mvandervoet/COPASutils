@@ -284,13 +284,13 @@ plotTrait = function(plate, trait, trait2=NULL, type="heat"){
         plot = plot + geom_rect(aes_string(xmin=0,xmax=5,ymin=0,ymax=5,fill=trait))+
                geom_text(aes_string(x=2.5,y=2.5,label=trait))+presentation+
                theme(axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), axis.text.x=element_blank(), axis.text.y=element_blank()) +
-               xlab("columns") + ylab("rows")
+               xlab("Columns") + ylab("Rows")
     }
     if(type == "scatter"){
         plot = plot + geom_point(aes_string(x = trait, y = trait2)) + presentation + xlab(trait) + ylab(trait2)
     }
     if(type == "hist"){
-        plot = plot + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/30) + presentation + xlab("columns") + ylab("rows")
+        plot = plot + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/30) + presentation + xlab("Columns") + ylab("Rows")
     }
     plot = plot + facet_grid(row~col)
     return(plot)
