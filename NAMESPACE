@@ -2,6 +2,7 @@
 
 export(edgeEffect)
 export(fillWells)
+export(plotCompare)
 export(plotCorMatrix)
 export(plotTrait)
 export(readPlate)

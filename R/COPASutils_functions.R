@@ -382,10 +382,33 @@ edgeEffect = function(plate, trait=NULL){
 }
 
 
-plotCompare = function(plates, trait){
+#' Visualize and compare values and distributions across multiple plates
+#' 
+#' Plot the value (bar plot, if summerized) or distribution (boxplot, if unsummarized) of the data from each well across multiple plates.
+#' @param plates the list of plate data frames to compare
+#' @param trait the trait to compare, entered as a string
+#' @param plateNames an optional character vector with the names of the individual plates; if no names are entered, numbers will be used in the order the data frames are entered
+#' @export
+#' @examples
+#' plotCompare(list(plateA, plateB, plateC), "n", c("Plate A", "Plate B", "Plate C"))
+
+plotCompare = function(plates, trait, plateNames=NULL){
+    if(!is.null(plateNames) && length(plateNames) != length(plates)){
+        stop("Length of plateNames must match length of plates")
+    }
+    for(i in seq(1, length(plates))){
+        if(is.null(plateNames)){
+            plates[[i]] = as.data.frame(cbind(plates[[i]], rep(i, nrow(plates[[i]]))))
+        } else {
+            plates[[i]] = as.data.frame(cbind(plates[[i]], rep(plateNames[i], nrow(plates[[i]]))))
+        }
+        colnames(plates[[i]])[ncol(plates[[i]])] = "Plate"
+    }
     wholeDF = ldply(plates, data.frame)
-    return(wholeDF)
-    if(length(unique(nrow(plates))) == 1){
-        ggplot(wholeDF, aes(y = ))
+
+    if(nrow(wholeDF) %% 96 == 0 && trait %in% colnames(wholeDF)){
+        ggplot(wholeDF, aes_string(x = "Plate", y = trait, fill = "Plate")) + geom_bar(stat="identity") + facet_grid(row~col) + theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
+    } else if(trait %in% colnames(wholeDF)){
+        ggplot(wholeDF, aes_string(x = "Plate", y = trait, fill = "Plate")) + geom_boxplot() + facet_grid(row~col) + theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
     }
 }
