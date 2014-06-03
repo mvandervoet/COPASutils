@@ -1,5 +1,5 @@
-#' COPAStools.
+#' COPASutils - Easy reading, processing, and manipution of COPAS BIOSORT data.
 #'
-#' @name COPAStools
+#' @name COPASutils
 #' @docType package
 NULL

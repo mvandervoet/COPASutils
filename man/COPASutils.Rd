@@ -3,8 +3,8 @@
 \name{COPASutils}
 \alias{COPASutils}
 \alias{COPASutils-package}
-\title{COPASutils.}
+\title{COPASutils - Easy reading, processing, and manipution of COPAS BIOSORT data.}
 \description{
-Read, clean, and process COPAS BIOSORT 96-well data.
+COPASutils - Easy reading, processing, and manipution of COPAS BIOSORT data.
 }
 
