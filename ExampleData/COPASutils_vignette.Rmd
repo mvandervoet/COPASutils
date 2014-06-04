@@ -1,0 +1,61 @@
+Using the COPASutils package to read, process, and analyze COPAS data
+========================================================
+
+In this example, we will be using the COPAStools package to read in, process, and analyze data resulting fram a Genome Wide Association Study (GWAS) using *Caenorhabditis elegans* nematode worms and a COPAS BIOSORT large particle flow cytometer. This example assumes that the COPASutils package is installed, with all necessary dependecies on your local machine. To install the COPASutils package, you can use the command `install.packages("COPASutils")`.
+
+We will begin by requiring the COPASutils package so that we can utilize the associated functions and example data.
+
+```{r}
+require(COPASutils)
+```
+
+## Reading Data
+
+We can now read in the plate data from one of the example data sets. In the GWAS experimental design, each plate is set up with three worms sorted to each well in every other column. We have included an example data set, called "control_setup.txt" that illustrates this step of the experiment and we will read this file in first and save it to a data frame called `setupRaw`.
+
+```{r}
+setupRaw <- readPlate("control_setup.txt")
+```
+
+If we look at the head of this data frame we can begin to step through the different data that are output by the COPAS machine.
+
+```{r}
+head(setupRaw)
+```
+
+We can see that the COPAS machine groups the output data primarily by row and column of a 96-well plate, represented by the columns `row` and `col` in the above data farme. Each row in the data frame represents the readings for a single object. Working through the columns left to right, we see that the sorter returns the sort status of the object in the `sort` column (for our purposes, we are only concerned with instances where sort = 6, as these worms were sorted to the repective wells in the target plate). We then see `TOF` which stands for "time of flight" or a measure of the legth of the object in microns. Next is `EXT` or "extinction", a measure of the optical density of the object . Following this is the `time` column which represents the relative time in milliseconds???? from the first object sorted per each in well. Using this scheme, the first object to pass through the flow cell for each well with therefore be assigned a time of 0. Next are the peak height values for each of the fluorescence channels, indicated by the `green`, `yellow`, and `red` columns. Lastly the columns `object` and `call50` represent data returned from the support vector machine that probabilistically determines whether each "object" is actually an object (cell, worm, etc.) or whether it is a bubble. This feature is useful if the experiments, like ours, requires the bubble trap hardware to be bypassed. `call50` displays "bubble" if the probability of being an object (`object`) is greater than .5, or "bubble" otherwise.
+
+If you wuld like to remove the last two columns (i.e. read in data without the help of the SVM), you can set the `SVM` argument to FALSE, as below:
+
+```{r}
+setupRaw2 <- readPlate("control_setup.txt", SVM=FALSE)
+head(setupRaw2)
+```
+
+We can also set cutoffs for minimum and maximum time of flight and extinction values as such:
+
+```{r}
+setupRaw3 <- readPlate("control_setup.txt", tofmin=60, tofmax=1000, extmin=50, extmax=500)
+head(setupRaw3)
+```
+
+Lastly, we can normalize the extinction value as well as all of the fluoresence channel values by time of flight by setting the `normalize` argument to TRUE:
+
+```{r}
+setupRaw4 <- readPlate("control_setup.txt", normalize=TRUE)
+head(setupRaw4)
+```
+
+We now see that norm.EXT, norm.green, norm.yellow, and norm.red all return the peak height value for each over the time of flight measurement.
+
+## Processing Data
+
+Now that we have read our raw data into R using the `readPlate` function, we probably want to summarize the data by well. We are not necessarily interested in the data at the per object level, but it would be nice to get some summary statistics for each well. For instance, in the GWAS experiement from which are examining the data, it is desired that 3 worms be sorted into each well in every other column. To summarize the data we can use the `summarizePlate` function.
+
+```{r}
+setupSummarized <- summarizePlate(setupRaw)
+```
+
+
+
+
