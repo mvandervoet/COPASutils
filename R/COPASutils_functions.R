@@ -75,148 +75,148 @@ readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=
 #' processWells(plate, quantiles=TRUE, log=TRUE)
 
 summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE) {
-    require(plyr)
-    processed <- suppressWarnings(ddply(.data=plate[plate$call50=="object" | plate$TOF == -1,], .variables=c("row", "col"),
+    plate <- fillWells(plate)
+    processed <- suppressWarnings(ddply(.data=plate[plate$call50=="object" | plate$TOF == -1 | is.na(plate$call50),], .variables=c("row", "col"),
                        .fun=function(x){c(n=length(x$TOF),
                                           n.sorted=sum(x$sort==6),
-                                          meanTOF=mean(x$TOF),
-                                          medianTOF=median(x$TOF),
-                                          minTOF=as.numeric(quantile(x$TOF)[1]),
+                                          meanTOF=mean(x$TOF, na.rm=TRUE),
+                                          medianTOF=median(x$TOF, na.rm=TRUE),
+                                          minTOF=as.numeric(quantile(x$TOF, na.rm=TRUE)[1]),
                                           if(quantiles){
                                               c(
-                                              q05_TOF=as.numeric(quantile(x$TOF, probs=0.05)),
-                                              q10_TOF=as.numeric(quantile(x$TOF, probs=0.1)[1]),
-                                              q15_TOF=as.numeric(quantile(x$TOF, probs=0.15)[1]),
-                                              q20_TOF=as.numeric(quantile(x$TOF, probs=0.2)[1]),
-                                              q25_TOF=as.numeric(quantile(x$TOF, probs=0.25)[1]),
-                                              q30_TOF=as.numeric(quantile(x$TOF, probs=0.3)[1]),
-                                              q35_TOF=as.numeric(quantile(x$TOF, probs=0.35)[1]),
-                                              q40_TOF=as.numeric(quantile(x$TOF, probs=0.4)[1]),
-                                              q45_TOF=as.numeric(quantile(x$TOF, probs=0.45)[1]),
-                                              q55_TOF=as.numeric(quantile(x$TOF, probs=0.55)[1]),
-                                              q60_TOF=as.numeric(quantile(x$TOF, probs=0.6)[1]),
-                                              q65_TOF=as.numeric(quantile(x$TOF, probs=0.65)[1]),
-                                              q70_TOF=as.numeric(quantile(x$TOF, probs=0.70)[1]),
-                                              q75_TOF=as.numeric(quantile(x$TOF, probs=0.75)[1]),
-                                              q80_TOF=as.numeric(quantile(x$TOF, probs=0.8)[1]),
-                                              q85_TOF=as.numeric(quantile(x$TOF, probs=0.85)[1]),
-                                              q90_TOF=as.numeric(quantile(x$TOF, probs=0.90)[1]),
-                                              q95_TOF=as.numeric(quantile(x$TOF, probs=0.95)[1])
+                                              q05_TOF=as.numeric(quantile(x$TOF, probs=0.05, na.rm=TRUE)),
+                                              q10_TOF=as.numeric(quantile(x$TOF, probs=0.1, na.rm=TRUE)[1]),
+                                              q15_TOF=as.numeric(quantile(x$TOF, probs=0.15, na.rm=TRUE)[1]),
+                                              q20_TOF=as.numeric(quantile(x$TOF, probs=0.2, na.rm=TRUE)[1]),
+                                              q25_TOF=as.numeric(quantile(x$TOF, probs=0.25, na.rm=TRUE)[1]),
+                                              q30_TOF=as.numeric(quantile(x$TOF, probs=0.3, na.rm=TRUE)[1]),
+                                              q35_TOF=as.numeric(quantile(x$TOF, probs=0.35, na.rm=TRUE)[1]),
+                                              q40_TOF=as.numeric(quantile(x$TOF, probs=0.4, na.rm=TRUE)[1]),
+                                              q45_TOF=as.numeric(quantile(x$TOF, probs=0.45, na.rm=TRUE)[1]),
+                                              q55_TOF=as.numeric(quantile(x$TOF, probs=0.55, na.rm=TRUE)[1]),
+                                              q60_TOF=as.numeric(quantile(x$TOF, probs=0.6, na.rm=TRUE)[1]),
+                                              q65_TOF=as.numeric(quantile(x$TOF, probs=0.65, na.rm=TRUE)[1]),
+                                              q70_TOF=as.numeric(quantile(x$TOF, probs=0.70, na.rm=TRUE)[1]),
+                                              q75_TOF=as.numeric(quantile(x$TOF, probs=0.75, na.rm=TRUE)[1]),
+                                              q80_TOF=as.numeric(quantile(x$TOF, probs=0.8, na.rm=TRUE)[1]),
+                                              q85_TOF=as.numeric(quantile(x$TOF, probs=0.85, na.rm=TRUE)[1]),
+                                              q90_TOF=as.numeric(quantile(x$TOF, probs=0.90, na.rm=TRUE)[1]),
+                                              q95_TOF=as.numeric(quantile(x$TOF, probs=0.95, na.rm=TRUE)[1])
                                               )
                                           },
-                                          maxTOF=as.numeric(quantile(x$TOF)[5]),
-                                          meanEXT=mean(x$EXT),
-                                          medianEXT=median(x$EXT),
-                                          minEXT=as.numeric(quantile(x$EXT)[1]),
+                                          maxTOF=as.numeric(quantile(x$TOF, na.rm=TRUE)[5]),
+                                          meanEXT=mean(x$EXT, na.rm=TRUE),
+                                          medianEXT=median(x$EXT, na.rm=TRUE),
+                                          minEXT=as.numeric(quantile(x$EXT, na.rm=TRUE)[1]),
                                           if(quantiles){
                                               c(
-                                              q05_EXT=as.numeric(quantile(x$EXT, probs=0.05)),
-                                              q10_EXT=as.numeric(quantile(x$EXT, probs=0.1)[1]),
-                                              q15_EXT=as.numeric(quantile(x$EXT, probs=0.15)[1]),
-                                              q20_EXT=as.numeric(quantile(x$EXT, probs=0.2)[1]),
-                                              q25_EXT=as.numeric(quantile(x$EXT, probs=0.25)[1]),
-                                              q30_EXT=as.numeric(quantile(x$EXT, probs=0.3)[1]),
-                                              q35_EXT=as.numeric(quantile(x$EXT, probs=0.35)[1]),
-                                              q40_EXT=as.numeric(quantile(x$EXT, probs=0.4)[1]),
-                                              q45_EXT=as.numeric(quantile(x$EXT, probs=0.45)[1]),
-                                              q55_EXT=as.numeric(quantile(x$EXT, probs=0.55)[1]),
-                                              q60_EXT=as.numeric(quantile(x$EXT, probs=0.6)[1]),
-                                              q65_EXT=as.numeric(quantile(x$EXT, probs=0.65)[1]),
-                                              q70_EXT=as.numeric(quantile(x$EXT, probs=0.70)[1]),
-                                              q75_EXT=as.numeric(quantile(x$EXT, probs=0.75)[1]),
-                                              q80_EXT=as.numeric(quantile(x$EXT, probs=0.8)[1]),
-                                              q85_EXT=as.numeric(quantile(x$EXT, probs=0.85)[1]),
-                                              q90_EXT=as.numeric(quantile(x$EXT, probs=0.90)[1]),
-                                              q95_EXT=as.numeric(quantile(x$EXT, probs=0.95)[1])
+                                              q05_EXT=as.numeric(quantile(x$EXT, probs=0.05, na.rm=TRUE)),
+                                              q10_EXT=as.numeric(quantile(x$EXT, probs=0.1, na.rm=TRUE)[1]),
+                                              q15_EXT=as.numeric(quantile(x$EXT, probs=0.15, na.rm=TRUE)[1]),
+                                              q20_EXT=as.numeric(quantile(x$EXT, probs=0.2, na.rm=TRUE)[1]),
+                                              q25_EXT=as.numeric(quantile(x$EXT, probs=0.25, na.rm=TRUE)[1]),
+                                              q30_EXT=as.numeric(quantile(x$EXT, probs=0.3, na.rm=TRUE)[1]),
+                                              q35_EXT=as.numeric(quantile(x$EXT, probs=0.35, na.rm=TRUE)[1]),
+                                              q40_EXT=as.numeric(quantile(x$EXT, probs=0.4, na.rm=TRUE)[1]),
+                                              q45_EXT=as.numeric(quantile(x$EXT, probs=0.45, na.rm=TRUE)[1]),
+                                              q55_EXT=as.numeric(quantile(x$EXT, probs=0.55, na.rm=TRUE)[1]),
+                                              q60_EXT=as.numeric(quantile(x$EXT, probs=0.6, na.rm=TRUE)[1]),
+                                              q65_EXT=as.numeric(quantile(x$EXT, probs=0.65, na.rm=TRUE)[1]),
+                                              q70_EXT=as.numeric(quantile(x$EXT, probs=0.70, na.rm=TRUE)[1]),
+                                              q75_EXT=as.numeric(quantile(x$EXT, probs=0.75, na.rm=TRUE)[1]),
+                                              q80_EXT=as.numeric(quantile(x$EXT, probs=0.8, na.rm=TRUE)[1]),
+                                              q85_EXT=as.numeric(quantile(x$EXT, probs=0.85, na.rm=TRUE)[1]),
+                                              q90_EXT=as.numeric(quantile(x$EXT, probs=0.90, na.rm=TRUE)[1]),
+                                              q95_EXT=as.numeric(quantile(x$EXT, probs=0.95, na.rm=TRUE)[1])
                                               )
                                           },
-                                          maxEXT=as.numeric(quantile(x$EXT)[5]),
-                                          mean.red=mean(x$red, na.rm=T),
+                                          maxEXT=as.numeric(quantile(x$EXT, na.rm=TRUE)[5]),
+                                          mean.red=mean(x$red, na.rm=TRUE),
                                           if(quantiles){
                                               c(
-                                              q10_red=as.numeric(quantile(x$red, probs=0.1)[1]),
-                                              q25_red=as.numeric(quantile(x$red, probs=0.25)[1])
+                                              q10_red=as.numeric(quantile(x$red, probs=0.1, na.rm=TRUE)[1]),
+                                              q25_red=as.numeric(quantile(x$red, probs=0.25, na.rm=TRUE)[1])
                                               )
                                           },
-                                          median.red=median(x$red, na.rm=T),
+                                          median.red=median(x$red, na.rm=TRUE),
                                           if(quantiles){
                                               c(
-                                              q75_red=as.numeric(quantile(x$red, probs=0.75)[1]),
-                                              q90_red=as.numeric(quantile(x$red, probs=0.9)[1])
+                                              q75_red=as.numeric(quantile(x$red, probs=0.75, na.rm=TRUE)[1]),
+                                              q90_red=as.numeric(quantile(x$red, probs=0.9, na.rm=TRUE)[1])
                                               )
                                           },
-                                          mean.gr=mean(x$green, na.rm=T),
-                                          median.gr=median(x$green, na.rm=T),
-                                          mean.y=mean(x$yellow, na.rm=T),
-                                          median.y=median(x$yellow, na.rm=T),
-                                          mean.normred=mean(x$norm.red, na.rm=T),
+                                          mean.gr=mean(x$green, na.rm=TRUE),
+                                          median.gr=median(x$green, na.rm=TRUE),
+                                          mean.y=mean(x$yellow, na.rm=TRUE),
+                                          median.y=median(x$yellow, na.rm=TRUE),
+                                          mean.normred=mean(x$norm.red, na.rm=TRUE),
                                           if(quantiles){
                                               c(
-                                              q10_normred=as.numeric(quantile(x$norm.red, probs=0.1)[1]),
-                                              q25_normred=as.numeric(quantile(x$norm.red, probs=0.25)[1])
+                                              q10_normred=as.numeric(quantile(x$norm.red, probs=0.1, na.rm=TRUE)[1]),
+                                              q25_normred=as.numeric(quantile(x$norm.red, probs=0.25, na.rm=TRUE)[1])
                                               )
                                           },
-                                          median.normred=mean(x$norm.red, na.rm=T),
+                                          median.normred=mean(x$norm.red, na.rm=TRUE),
                                           if(quantiles){
                                               c(
-                                              q75_normred=as.numeric(quantile(x$norm.red, probs=0.75)[1]),
-                                              q90_normred=as.numeric(quantile(x$norm.red, probs=0.9)[1]),
-                                              )
+                                              q75_normred=as.numeric(quantile(x$norm.red, probs=0.75, na.rm=TRUE)[1]),
+                                              q90_normred=as.numeric(quantile(x$norm.red, probs=0.9, na.rm=TRUE)[1]),
+                                              , na.rm=TRUE)
                                           },
                                           if(log){
                                               c(
-                                              log.meanEXT=log(mean(x$EXT)),
-                                              log.medianEXT=log(median(x$EXT)),
-                                              log.minEXT=as.numeric(log(quantile(x$EXT)[1])),
+                                              log.meanEXT=log(mean(x$EXT, na.rm=TRUE)),
+                                              log.medianEXT=log(median(x$EXT, na.rm=TRUE)),
+                                              log.minEXT=as.numeric(log(quantile(x$EXT, na.rm=TRUE)[1])),
                                               if(quantiles){
                                                   c(
-                                                  log.q05_EXT=as.numeric(log(quantile(x$EXT, probs=0.05))),
-                                                  log.q10_EXT=as.numeric(log(quantile(x$EXT, probs=0.1)[1])),
-                                                  log.q15_EXT=as.numeric(log(quantile(x$EXT, probs=0.15)[1])),
-                                                  log.q20_EXT=as.numeric(log(quantile(x$EXT, probs=0.2)[1])),
-                                                  log.q25_EXT=as.numeric(log(quantile(x$EXT, probs=0.25)[1])),
-                                                  log.q30_EXT=as.numeric(log(quantile(x$EXT, probs=0.3)[1])),
-                                                  log.q35_EXT=as.numeric(log(quantile(x$EXT, probs=0.35)[1])),
-                                                  log.q40_EXT=as.numeric(log(quantile(x$EXT, probs=0.4)[1])),
-                                                  log.q45_EXT=as.numeric(log(quantile(x$EXT, probs=0.45)[1])),
-                                                  log.q55_EXT=as.numeric(log(quantile(x$EXT, probs=0.55)[1])),
-                                                  log.q60_EXT=as.numeric(log(quantile(x$EXT, probs=0.6)[1])),
-                                                  log.q65_EXT=as.numeric(log(quantile(x$EXT, probs=0.65)[1])),
-                                                  log.q70_EXT=as.numeric(log(quantile(x$EXT, probs=0.70)[1])),
-                                                  log.q75_EXT=as.numeric(log(quantile(x$EXT, probs=0.75)[1])),
-                                                  log.q80_EXT=as.numeric(log(quantile(x$EXT, probs=0.8)[1])),
-                                                  log.q85_EXT=as.numeric(log(quantile(x$EXT, probs=0.85)[1])),
-                                                  log.q90_EXT=as.numeric(log(quantile(x$EXT, probs=0.90)[1])),
-                                                  log.q95_EXT=as.numeric(log(quantile(x$EXT, probs=0.95)[1]))
+                                                  log.q05_EXT=as.numeric(log(quantile(x$EXT, probs=0.05, na.rm=TRUE))),
+                                                  log.q10_EXT=as.numeric(log(quantile(x$EXT, probs=0.1, na.rm=TRUE)[1])),
+                                                  log.q15_EXT=as.numeric(log(quantile(x$EXT, probs=0.15, na.rm=TRUE)[1])),
+                                                  log.q20_EXT=as.numeric(log(quantile(x$EXT, probs=0.2, na.rm=TRUE)[1])),
+                                                  log.q25_EXT=as.numeric(log(quantile(x$EXT, probs=0.25, na.rm=TRUE)[1])),
+                                                  log.q30_EXT=as.numeric(log(quantile(x$EXT, probs=0.3, na.rm=TRUE)[1])),
+                                                  log.q35_EXT=as.numeric(log(quantile(x$EXT, probs=0.35, na.rm=TRUE)[1])),
+                                                  log.q40_EXT=as.numeric(log(quantile(x$EXT, probs=0.4, na.rm=TRUE)[1])),
+                                                  log.q45_EXT=as.numeric(log(quantile(x$EXT, probs=0.45, na.rm=TRUE)[1])),
+                                                  log.q55_EXT=as.numeric(log(quantile(x$EXT, probs=0.55, na.rm=TRUE)[1])),
+                                                  log.q60_EXT=as.numeric(log(quantile(x$EXT, probs=0.6, na.rm=TRUE)[1])),
+                                                  log.q65_EXT=as.numeric(log(quantile(x$EXT, probs=0.65, na.rm=TRUE)[1])),
+                                                  log.q70_EXT=as.numeric(log(quantile(x$EXT, probs=0.70, na.rm=TRUE)[1])),
+                                                  log.q75_EXT=as.numeric(log(quantile(x$EXT, probs=0.75, na.rm=TRUE)[1])),
+                                                  log.q80_EXT=as.numeric(log(quantile(x$EXT, probs=0.8, na.rm=TRUE)[1])),
+                                                  log.q85_EXT=as.numeric(log(quantile(x$EXT, probs=0.85, na.rm=TRUE)[1])),
+                                                  log.q90_EXT=as.numeric(log(quantile(x$EXT, probs=0.90, na.rm=TRUE)[1])),
+                                                  log.q95_EXT=as.numeric(log(quantile(x$EXT, probs=0.95, na.rm=TRUE)[1]))
                                                   )
                                               },
-                                              log.maxEXT=as.numeric(log(quantile(x$EXT)[5])),
-                                              log.mean.red=log(mean(x$red, na.rm=T)),
+                                              log.maxEXT=as.numeric(log(quantile(x$EXT, na.rm=TRUE)[5])),
+                                              log.mean.red=log(mean(x$red, na.rm=TRUE)),
                                               if(quantiles){
                                                   c(
-                                                  log.q10_red=as.numeric(log(quantile(x$red, probs=0.1)[1])),
-                                                  log.q25_red=as.numeric(log(quantile(x$red, probs=0.25)[1]))
+                                                  log.q10_red=as.numeric(log(quantile(x$red, probs=0.1, na.rm=TRUE)[1])),
+                                                  log.q25_red=as.numeric(log(quantile(x$red, probs=0.25, na.rm=TRUE)[1]))
                                                   )
                                               },
-                                              log.median.red=log(median(x$red, na.rm=T)),
+                                              log.median.red=log(median(x$red, na.rm=TRUE)),
                                               if(quantiles){
                                                   c(
-                                                  log.q75_red=as.numeric(log(quantile(x$red, probs=0.75)[1])),
-                                                  log.q90_red=as.numeric(log(quantile(x$red, probs=0.9)[1]))
+                                                  log.q75_red=as.numeric(log(quantile(x$red, probs=0.75, na.rm=TRUE)[1])),
+                                                  log.q90_red=as.numeric(log(quantile(x$red, probs=0.9, na.rm=TRUE)[1]))
                                                   )
                                               },
-                                              log.mean.normred=log(mean(x$norm.red, na.rm=T)),
+                                              log.mean.normred=log(mean(x$norm.red, na.rm=TRUE)),
                                               if(quantiles){
                                                   c(
-                                                  log.q10_normred=as.numeric(log(quantile(x$norm.red, probs=0.1)[1])),
-                                                  log.q25_normred=as.numeric(log(quantile(x$norm.red, probs=0.25)[1]))
+                                                  log.q10_normred=as.numeric(log(quantile(x$norm.red, probs=0.1, na.rm=TRUE)[1])),
+                                                  log.q25_normred=as.numeric(log(quantile(x$norm.red, probs=0.25, na.rm=TRUE)[1]))
                                                   )
                                               },
-                                              log.median.normred=log(mean(x$norm.red, na.rm=T)),
+                                              log.median.normred=log(mean(x$norm.red, na.rm=TRUE)),
                                               if(quantiles){
                                                   c(
-                                                  log.q75_normred=as.numeric(log(quantile(x$norm.red, probs=0.75)[1])),
-                                                  log.q90_normred=as.numeric(log(quantile(x$norm.red, probs=0.9)[1]))
+                                                  log.q75_normred=as.numeric(log(quantile(x$norm.red, probs=0.75, na.rm=TRUE)[1])),
+                                                  log.q90_normred=as.numeric(log(quantile(x$norm.red, probs=0.9, na.rm=TRUE)[1]))
                                                   )
                                               }
                                               )
@@ -230,6 +230,7 @@ summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE) {
         analysis <- analysis[order(analysis$row, analysis$col),]
         analysis[as.numeric(analysis$meanTOF)==-1 | is.na(analysis$meanTOF),4:ncol(analysis)] <- NA
     }
+    analysis[which(analysis$meanTOF==-1) | which(is.na(analysis$meanTOF)),which(colnames(analysis)=="n"):ncol(analysis)] <- NA
     return(analysis)
 }
 
