@@ -413,3 +413,33 @@ plotCompare = function(plates, trait, plateNames=NULL){
         ggplot(wholeDF, aes_string(x = "Plate", y = trait, fill = "Plate")) + geom_boxplot() + facet_grid(row~col) + theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
     }
 }
+
+#' Plot a dose response curve by strain across a plate
+#' 
+#' Return a ggplot2 object of a dose response curve by strain across a plate
+#' @param plate the plate data frame to be plotted
+#' @param dosages a vector of dosages in the plate, entered by row
+#' @param trait the trait to be plotted on the y axis
+#' @export
+
+plotDR = function(plate, dosages, trait="n"){
+    plate = data.frame(cbind(dosages, plate))
+    plate = plate[!is.na(plate$strain),]
+    ggplot(plate, aes_string(x="dosages", y=trait, colour="strain")) + geom_point() + geom_line() + scale_colour_discrete(name="Strain") + xlab("Dose") + ylab(trait)
+}
+
+#' Plot dose response curves for all traits
+#' 
+#' Return a list of ggplot2 objects of dose response curves by strain across a plate. Plots for specific traits can be accessed by name from the returned list (i.e. "plots$n" will return the dose response plot for the trait "n").
+#' @param plate the plate data frame to be plotted
+#' @param dosages a vector of dosages in the plate, entered by row
+#' @export
+
+plotDR_allTraits = function(plate, dosages){
+    plots = list()
+    for(trait in colnames(plate)[4:ncol(plate)]){
+        plots = append(plots, list(plotDR(plate, dosages, trait)))
+    }
+    names(plots) = colnames(plate)[4:ncol(plate)]
+    return(plots)
+}
