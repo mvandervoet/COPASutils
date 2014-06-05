@@ -48,7 +48,7 @@ extractTime <- function(plate) {plate$time <- plate$time - min(plate$time); retu
 readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=TRUE) {
     plate <- readSorter(file, tofmin, tofmax, extmin, extmax)
     modplate <- with(plate, data.frame(row=Row, col=as.factor(Column), sort=Status.sort, TOF=TOF, EXT=EXT, time=Time.Stamp, green=Green, yellow=Yellow, red=Red))
-    modplate <- ddply(.data=modplate, .variables=c("row", "col"), .fun=extractTime)
+    modplate <- modplate %>% group_by(row, col) %>% do(extractTime(.))
     modplate[,10:13] <- apply(modplate[,c(5, 7:9)], 2, function(x){x/modplate$TOF})
     colnames(modplate)[10:13] <- c("norm.EXT", "norm.green", "norm.yellow", "norm.red")
     if(SVM){
@@ -89,7 +89,6 @@ summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends
                                                             max.TOF=as.numeric(quantile(TOF, na.rm=TRUE)[5]),
                                                             
                                                             mean.EXT=mean(EXT, na.rm=TRUE),
-                                                            median.EXT=median(EXT, na.rm=TRUE),
                                                             min.EXT=as.numeric(quantile(EXT, na.rm=TRUE)[1]),
                                                             q10.EXT=as.numeric(quantile(EXT, probs=0.1, na.rm=TRUE)[1]),
                                                             q25.EXT=as.numeric(quantile(EXT, probs=0.25, na.rm=TRUE)[1]),
@@ -232,16 +231,24 @@ summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends
                                                             q75.log.norm.yellow=as.numeric(quantile(log(norm.yellow), probs=0.75, na.rm=TRUE)[1]),
                                                             q90.log.norm.yellow=as.numeric(quantile(log(norm.yellow), probs=0.90, na.rm=TRUE)[1]),
                                                             max.log.norm.yellow=as.numeric(quantile(log(norm.yellow), na.rm=TRUE)[5]))
-    
-    
-    
+
+    if(!ends){
+        processed <- processed[,-(grep("min", colnames(processed)))]
+        processed <- processed[,-(grep("max", colnames(processed)))]
+    }
+    if(!quantiles){
+        processed <- processed[,-(grep("q", colnames(processed)))]
+    }
+    if(!log){
+        processed <- processed[,-(grep("log", colnames(processed)))]
+    }
     if(is.null(strains)){
         analysis <- processed
+        analysis <- analysis[order(analysis$row, analysis$col),]
     } else {
         analysis <- data.frame(strain = as.character(strains), processed)
         analysis <- analysis[order(analysis$strain),]
         analysis <- analysis[order(analysis$row, analysis$col),]
-        analysis[as.numeric(analysis$mean.TOF)==-1 | is.na(analysis$mean.TOF),4:ncol(analysis)] <- NA
     }
     analysis[which(analysis$mean.TOF==-1) | which(is.na(analysis$mean.TOF)),which(colnames(analysis)=="n"):ncol(analysis)] <- NA
     return(analysis)
@@ -418,7 +425,7 @@ plotCompare = function(plates, trait, plateNames=NULL){
         }
         colnames(plates[[i]])[ncol(plates[[i]])] = "Plate"
     }
-    wholeDF = ldply(plates, data.frame)
+    wholeDF = rbind_all(plates)
 
     if(nrow(wholeDF) %% 96 == 0 && trait %in% colnames(wholeDF)){
         ggplot(wholeDF, aes_string(x = "Plate", y = trait, fill = "Plate")) + geom_bar(stat="identity") + facet_grid(row~col) + theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
