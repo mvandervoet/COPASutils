@@ -27,6 +27,7 @@ readSorter <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000)  {
 #' 
 #' Sets time relative to first well run, used in other functions, not meant to be used on its own.
 #' @param plate a plate to extract the time from
+#' @export
 
 extractTime <- function(plate) {plate$time <- plate$time - min(plate$time); return(plate) }
 
@@ -443,9 +444,13 @@ plotCompare = function(plates, trait, plateNames=NULL){
 #' @export
 
 plotDR = function(plate, dosages, trait="n"){
-    plate = data.frame(cbind(dosages, plate))
-    plate = plate[!is.na(plate$strain),]
-    ggplot(plate, aes_string(x="dosages", y=trait, colour="strain")) + geom_point() + geom_line() + scale_colour_discrete(name="Strain") + xlab("Dose") + ylab(trait)
+    plate = data.frame(cbind(dose = dosages, plate))
+    plate = plate[,-c(3,4)]
+    plate = plate[!is.na(plate$strain)&!is.na(plate$dose),]
+    plate = melt(plate, id=c("strain", "dose"))
+    plate = plate %>% group_by(strain, dose, variable) %>% summarize(mean = mean(value))
+    plate = dcast(plate, strain+dose~variable, value.var="mean")
+    ggplot(plate, aes_string(x="dose", y=trait, colour="strain")) + geom_point() + geom_line() + scale_colour_discrete(name="Strain") + xlab("Dose") + ylab(trait)
 }
 
 #' Plot dose response curves for all traits
