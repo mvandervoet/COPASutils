@@ -48,11 +48,30 @@ setupSummarized <- summarizePlate(setupRaw)
 colnames(setupSummarized)
 ```
 
-We now see that we have many more trait variables, many of which describe the distribution of the originally measured values by well. We can get an even more complete picture by adding in extra quantiles, log transformed values of EXT and the fluorescent channels, and the minimum and maximum of each trait, as below:
+We now see that we have many more trait variables, many of which describe the distribution of the originally measured values by well. We can get an even more complete picture by adding in extra quantiles (`quantiles` argument), log transformed values of EXT and the fluorescence channels (`log` argument), and the minimum and maximum of each trait (`ends` argument), as below:
 
 ```{r}
-setupSummarized <- summarizePlate(setupRaw, quantiles=TRUE, log=TRUE, ends=TRUE)
+setupSummarized2 <- summarizePlate(setupRaw, quantiles=TRUE, log=TRUE, ends=TRUE)
+colnames(setupSummarized2)
 ```
+
+We now have a great deal of information describing, in detail, the distribution of each of the measured traits. Again, each subset of new trait values can be removed by leaving each of the optional parameters (quantiles, log, and ends in). Each trait follows a specific naming system, wherein any mathematical transformation imparted on the original data is added at the beggining of the trait. For instance, the mean of all of the time of flight data (TOF) for each well can be found in the column `mean.TOF`. If wanted the column colrresponding to the 25th quantile of the log transformed extinction data (EXT), we could find it in the column named `q25.log.EXT`. All of the naming conventions are outlined in the table below:
+
+Statistic                       |  Abbreviation  |  Example
+:------------------------------:|:--------------:|:-----------------:
+mean                            |  mean          |  mean.TOF
+median                          |  median        |  median.EXT
+minimum                         |  min           |  min.yellow
+maximum                         |  max           |  max.green
+normalized to time of flight    |  norm          |  mean.norm.red
+quantiles                       |  qXX           |  q25.red
+log transformed data            |  log           |  mean.log.red
+
+Some statistics, such as norm and log values are calculated before the data are summarized and, as such, have a distribution of their own. For these traits, all mean, median, min, max and quantile data are available by stringing together names as in the above table.
+
+## Plotting Data
+
+
 
 
 
