@@ -8,7 +8,7 @@ Depends:
     R (>= 3.0),
     dplyr (>= 0.2),
     ggplot2 (>= 0.9),
-    kernlab (>= 0.9)
-
-License: GPL (>= 2)
-LazyData: true
+    kernlab (>= 0.9),
+    reshape2 (>= 1.0)
+License: GPL (>= 2.0)
+LazyData: TRUE

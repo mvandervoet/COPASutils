@@ -3,7 +3,8 @@
 \alias{summarizePlate}
 \title{Condense all objects examined to appropriate well}
 \usage{
-summarizePlate(plate, strains = NULL, quantiles = FALSE, log = FALSE)
+summarizePlate(plate, strains = NULL, quantiles = FALSE, log = FALSE,
+  ends = FALSE)
 }
 \arguments{
 \item{plate}{plate to summarize, must be run through readSorterData, not readSorter}
