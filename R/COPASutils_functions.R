@@ -273,7 +273,7 @@ removeWells <- function(plate, badWells, drop=FALSE) {
         for (i in seq(1, length(sp.bw))) {
             row <- sp.bw[[i]][2]
             col <- sp.bw[[i]][3]
-            plate[which(plate$row == row & plate$col == col),-(1:2)] <- NA
+            plate[which(plate$row == row & plate$col == col),-(which(colnames(plate) %in% c("row", "col", "strain")))] <- NA
         }
     } else {
         for (i in seq(1, length(sp.bw))) {
@@ -398,7 +398,7 @@ edgeEffect = function(plate, trait=NULL){
         colnames(pval) = c("PValue", "Trait")
         pval = pval[,c(2,1)]
     } else {
-        pval = t.test(total[,trait][which(pos == "edge")], total[,trait][which(pos == "center")])$p.value
+        pval = wilcox.test(total[,trait][which(pos == "edge")], total[,trait][which(pos == "center")])$p.value
     }
     return(pval)
 }
