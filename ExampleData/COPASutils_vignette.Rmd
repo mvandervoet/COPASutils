@@ -71,6 +71,13 @@ Some statistics, such as norm and log values are calculated before the data are 
 
 ## Plotting Data
 
+Now that we have access to both the unsummarized and summarized data, we would like to visualize the results from this plate. The plate in this example was set up with worms in every other column. To confirm that large populations only exist in every other columns, we will plot a heat map of the plate representing the population present in each well. 
+
+```{r}
+plotTrait(setupSummarized, "n")
+```
+
+We can see that the larger populations of worms are, in fact, only present in every other well, row-wise. The returned plot is a ggplot2 object and as such 
 
 
 
