@@ -279,7 +279,7 @@ removeWells <- function(plate, badWells, drop=FALSE) {
         for (i in seq(1, length(sp.bw))) {
             row <- sp.bw[[i]][2]
             col <- sp.bw[[i]][3]
-            plate = plate[plate$row != row & plate$col != col,]
+            plate = plate[plate$row != row | plate$col != col,]
         }
     }
     return(plate)
@@ -303,16 +303,18 @@ plotTrait = function(plate, trait, trait2=NULL, type="heat"){
     plate = fillWells(plate)
     plot = ggplot(plate)
     if(type == "heat"){
-        plot = plot + geom_rect(aes_string(xmin=0,xmax=5,ymin=0,ymax=5,fill=trait))+
-               geom_text(aes_string(x=2.5,y=2.5,label=trait))+presentation+
+        plot = plot + geom_rect(aes_string(xmin=0,xmax=5,ymin=0,ymax=5,fill=trait)) +
+               geom_text(aes_string(x=2.5,y=2.5,label=trait), colour="white")+presentation +
                theme(axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), axis.text.x=element_blank(), axis.text.y=element_blank()) +
                xlab("Columns") + ylab("Rows")
     }
     if(type == "scatter"){
-        plot = plot + geom_point(aes_string(x = trait, y = trait2)) + presentation + xlab(trait) + ylab(trait2)
+        plot = plot + geom_point(aes_string(x = trait, y = trait2), size=1.5) + presentation + xlab(trait) + ylab(trait2) +
+               theme(axis.text.x=element_text(size="10", angle=45, hjust=1), axis.text.y=element_text(size="10"))
     }
     if(type == "hist"){
-        plot = plot + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/30) + presentation + xlab("Columns") + ylab("Rows")
+        plot = plot + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/30) + presentation + xlab(trait) + ylab("Count") +
+               theme(axis.text.x=element_text(size="10", angle=45, hjust=1), axis.text.y=element_text(size="10"))
     }
     plot = plot + facet_grid(row~col)
     return(plot)
@@ -357,7 +359,7 @@ plotCorMatrix = function(plate1, plate2=plate1){
     if(nrow(plate1) != 96 | nrow(plate2) != 96){
         stop("Both plates must be summarized")
     }
-    if(nrow(plate1) == nrow(plate2)){
+    if(nrow(plate1) != nrow(plate2)){
         stop("Both plates to have the same number of traits")
     }
     corDF = melt(cor(plate1[,-(1:2)], plate2[,-(1:2)], use = "complete.obs"))
@@ -415,7 +417,7 @@ edgeEffect = function(plate, trait=NULL){
 #' plotCompare(list(plateA, plateB, plateC), "n", c("Plate A", "Plate B", "Plate C"))
 
 plotCompare = function(plates, trait, plateNames=NULL){
-    if(!is.null(plateNames) && length(plateNames) != length(plates)){
+    if(!is.null(plateNames) & length(plateNames) != length(plates)){
         stop("Length of plateNames must match length of plates")
     }
     for(i in seq(1, length(plates))){
@@ -428,7 +430,7 @@ plotCompare = function(plates, trait, plateNames=NULL){
     }
     wholeDF = rbind_all(plates)
 
-    if(nrow(wholeDF) %% 96 == 0 && trait %in% colnames(wholeDF)){
+    if(nrow(wholeDF) %% 96 == 0 & trait %in% colnames(wholeDF)){
         ggplot(wholeDF, aes_string(x = "Plate", y = trait, fill = "Plate")) + geom_bar(stat="identity") + facet_grid(row~col) + theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
     } else if(trait %in% colnames(wholeDF)){
         ggplot(wholeDF, aes_string(x = "Plate", y = trait, fill = "Plate")) + geom_boxplot() + facet_grid(row~col) + theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
