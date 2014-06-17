@@ -11,14 +11,23 @@
 #' readSorter("SortTest.txt", 60, 2000, 60, 5000)
 #' readSorter("SortTest.txt", tofmin=60, extmin=60)
 
-readSorter <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000)  {
+readSorter <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, BIOSORT=TRUE)  {
     data <- read.delim(file=file, header=T, na.strings=c("n/a"), as.is=T, stringsAsFactors=F)
     data <- data[!is.na(data$TOF),]
     data <- data[,!is.na(data[1,])]
     data <- data[(data$TOF>=tofmin & data$TOF<=tofmax) | data$TOF == -1,]
-    data <- data[(data$EXT>=extmin & data$EXT<=extmax) | data$EXT == -1,]
-    data$Column <- as.factor(data$Column)
-    data$Row <- as.factor(data$Row)
+    if(BIOSORT){
+        data <- data[(data$EXT>=extmin & data$EXT<=extmax) | data$EXT == -1,]
+        data$Column <- as.factor(data$Column)
+        data$Row <- as.factor(data$Row)
+    } else {
+        data <- data[(data$Extinction>=extmin & data$Extinction<=extmax) | data$Extinction == -1,]
+        data[,c("Row", "Column")] <- do.call(rbind, str_split(data$Source.well, "", n=3))[,c(2,3)]
+        data$Column <- as.factor(data$Column)
+        data$Row <- as.factor(data$Row)
+    }
+    levels(data$Row) <- LETTERS[1:8]
+    levels(data$Column) <- 1:12
     return(data)
 }
 
@@ -29,7 +38,10 @@ readSorter <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000)  {
 #' @param plate a plate to extract the time from
 #' @export
 
-extractTime <- function(plate) {plate$time <- plate$time - min(plate$time); return(plate) }
+extractTime <- function(plate){
+    plate$time <- plate$time - min(plate$time)
+    return(plate)
+}
 
 
 #' Read in the sorter data with minimal processing
@@ -46,9 +58,13 @@ extractTime <- function(plate) {plate$time <- plate$time - min(plate$time); retu
 #' readSorterData("SortTest.txt", 60, 2000, 60, 5000, SVM=FALSE)
 #' readSorterData("SortTest.txt", tofmin=60, extmin=60, SVM=TRUE, normalize=TRUE)
 
-readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=TRUE) {
-    plate <- readSorter(file, tofmin, tofmax, extmin, extmax)
-    modplate <- with(plate, data.frame(row=Row, col=as.factor(Column), sort=Status.sort, TOF=TOF, EXT=EXT, time=Time.Stamp, green=Green, yellow=Yellow, red=Red))
+readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=TRUE, BIOSORT=TRUE) {
+    plate <- readSorter(file, tofmin, tofmax, extmin, extmax, BIOSORT)
+    if(BIOSORT){
+        modplate <- with(plate, data.frame(row=Row, col=as.factor(Column), sort=Status.sort, TOF=TOF, EXT=EXT, time=Time.Stamp, green=Green, yellow=Yellow, red=Red))
+    } else {
+        modplate <- with(plate, data.frame(row=Row, col=as.factor(Column), sort=Sorted.status, TOF=TOF, EXT=Extinction, time=Time, green=Green, yellow=Yellow, red=Red))
+    }
     modplate <- modplate %>% group_by(row, col) %>% do(extractTime(.))
     modplate[,10:13] <- apply(modplate[,c(5, 7:9)], 2, function(x){x/modplate$TOF})
     colnames(modplate)[10:13] <- c("norm.EXT", "norm.green", "norm.yellow", "norm.red")
@@ -75,9 +91,9 @@ readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=
 #' processWells(plate, quantiles=TRUE, log=TRUE)
 
 summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends=FALSE) {
-    plate <- plate[plate$call50=="object" | plate$TOF == -1 | is.na(plate$call50),]
+    plate <- plate[as.character(plate$call50)=="object" | plate$TOF==-1 | is.na(as.character(plate$call50)),]
     plate <- fillWells(plate)
-    processed <- plate %>% group_by(row, col) %>% summarise(n=length(TOF),
+    processed <- plate %>% group_by(row, col) %>% summarise(n=ifelse(length(TOF[!is.na(TOF)])==0, NA, length(TOF[!is.na(TOF)])),
                                                             n.sorted=sum(sort==6),
                                                             
                                                             mean.TOF=mean(TOF, na.rm=TRUE),
@@ -301,22 +317,26 @@ removeWells <- function(plate, badWells, drop=FALSE) {
 
 plotTrait = function(plate, trait, trait2=NULL, type="heat"){
     plate = fillWells(plate)
-    plot = ggplot(plate)
+    plate$label <- ifelse(is.na(plate[,which(colnames(plate)==trait)]), "", plate[,which(colnames(plate)==trait)])
+    plate[,c("row", "col")] <- list(as.factor(plate$row), as.factor(plate$col))
+    levels(plate$row) <- LETTERS[1:8]
+    levels(plate$col) <- 1:12
     if(type == "heat"){
-        plot = plot + geom_rect(aes_string(xmin=0,xmax=5,ymin=0,ymax=5,fill=trait)) +
-               geom_text(aes_string(x=2.5,y=2.5,label=trait), colour="white")+presentation +
+        plot = ggplot(plate) + geom_rect(aes_string(xmin=0,xmax=5,ymin=0,ymax=5,fill=trait)) +
+               geom_text(aes(x=2.5,y=2.5,label=label, colour="white"), colour="white")+presentation +
                theme(axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), axis.text.x=element_blank(), axis.text.y=element_blank()) +
                xlab("Columns") + ylab("Rows")
-    }
-    if(type == "scatter"){
-        plot = plot + geom_point(aes_string(x = trait, y = trait2), size=1.5) + presentation + xlab(trait) + ylab(trait2) +
+    } else if(type == "scatter"){
+        plot = ggplot(plate) + geom_point(aes_string(x = trait, y = trait2), size=1.5) + presentation + xlab(trait) + ylab(trait2) +
                theme(axis.text.x=element_text(size="10", angle=45, hjust=1), axis.text.y=element_text(size="10"))
-    }
-    if(type == "hist"){
-        plot = plot + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/30) + presentation + xlab(trait) + ylab("Count") +
+    } else if(type == "hist"){
+        plate2 = na.omit(plate)
+        plot = ggplot(plate2) + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/15) + presentation + xlab(trait) + ylab("Count") +
                theme(axis.text.x=element_text(size="10", angle=45, hjust=1), axis.text.y=element_text(size="10"))
+    } else {
+        stop("Unrecognized plot type")
     }
-    plot = plot + facet_grid(row~col)
+    plot = plot + facet_grid(row~col, drop=FALSE)
     return(plot)
 }
 
@@ -325,19 +345,12 @@ plotTrait = function(plate, trait, trait2=NULL, type="heat"){
 #' 
 #' Returns a data frame with any missing wells filled in as NA for all measured data
 #' @param plate the data frame of the plate to filled
-#' @param wells the number of wells of the plate, 96 and 48 are only valid entries, defaults to 96
 #' @export
 #' @examples
 #' fillWells(plate) #returns the plate data frame with all missing wells filled with NAs
 
-fillWells = function(plate, wells=96){
-    if(wells == 96){
-        complete = data.frame(row=rep(LETTERS[1:8], each=12), col=rep(1:12, 8))
-    } else if(wells == 48){
-        complete = data.frame(row=rep(LETTERS[1:6], each=8), col=rep(1:8, 6))
-    } else {
-        stop("Invalid number of wells entered. Only 96 and 48 well plates can be filled.")
-    }
+fillWells = function(plate){
+    complete = data.frame(row=rep(LETTERS[1:8], each=12), col=rep(1:12, 8))
     plate = merge(plate, complete, by=c("row", "col"), all=TRUE)
     return(plate)
 }
@@ -422,18 +435,21 @@ plotCompare = function(plates, trait, plateNames=NULL){
     }
     for(i in seq(1, length(plates))){
         if(is.null(plateNames)){
-            plates[[i]] = as.data.frame(cbind(plates[[i]], rep(i, nrow(plates[[i]]))))
+            plates[[i]] = as.data.frame(cbind(plates[[i]], as.factor(rep(i, nrow(plates[[i]])))))
         } else {
             plates[[i]] = as.data.frame(cbind(plates[[i]], rep(plateNames[i], nrow(plates[[i]]))))
         }
         colnames(plates[[i]])[ncol(plates[[i]])] = "Plate"
     }
-    wholeDF = rbind_all(plates)
+    wholeDF = suppressWarnings(rbind_all(plates))
+    wholeDF[,c("row", "col")] <- list(as.factor(wholeDF$row), as.factor(wholeDF$col))
+    levels(wholeDF$row) <- LETTERS[1:8]
+    levels(wholeDF$col) <- 1:12
 
     if(nrow(wholeDF) %% 96 == 0 & trait %in% colnames(wholeDF)){
-        ggplot(wholeDF, aes_string(x = "Plate", y = trait, fill = "Plate")) + geom_bar(stat="identity") + facet_grid(row~col) + theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
+        ggplot(wholeDF, aes_string(x = "Plate", y = trait, fill = "Plate")) + geom_bar(stat="identity") + facet_grid(row~col, drop=FALSE) + theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
     } else if(trait %in% colnames(wholeDF)){
-        ggplot(wholeDF, aes_string(x = "Plate", y = trait, fill = "Plate")) + geom_boxplot() + facet_grid(row~col) + theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
+        ggplot(wholeDF, aes_string(x = "Plate", y = trait, fill = "Plate")) + geom_boxplot() + facet_grid(row~col, drop=FALSE) + theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
     }
 }
 

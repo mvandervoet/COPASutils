@@ -3,12 +3,10 @@
 \alias{fillWells}
 \title{Fill in any missing well rows with NA values}
 \usage{
-fillWells(plate, wells = 96)
+fillWells(plate)
 }
 \arguments{
 \item{plate}{the data frame of the plate to filled}
-
-\item{wells}{the number of wells of the plate, 96 and 48 are only valid entries, defaults to 96}
 }
 \description{
 Returns a data frame with any missing wells filled in as NA for all measured data
