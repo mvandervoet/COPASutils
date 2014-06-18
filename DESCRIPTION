@@ -11,5 +11,8 @@ Depends:
     kernlab (>= 0.9),
     reshape2 (>= 1.0),
     stringr (>= 0.6)
+Suggests:
+    knitr (>= 1.5)
 License: GPL (>= 2.0)
 LazyData: TRUE
+VignetteBuilder: knitr
