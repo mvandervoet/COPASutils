@@ -16,7 +16,7 @@ We will begin by requiring the COPASutils package so that we can utilize the ass
 
 ```{r set-options, echo=FALSE, cache=FALSE}
 options(width = 120)
-opts_knit$set(root.dir = "../data")
+opts_knit$set(root.dir = "../inst/data")
 ```
 
 ```{r message=FALSE}

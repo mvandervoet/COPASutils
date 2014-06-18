@@ -4,7 +4,7 @@
 \title{Read in raw sorter data}
 \usage{
 readSorter(file, tofmin = 0, tofmax = 10000, extmin = 0, extmax = 10000,
-  BIOSORT = TRUE)
+  reflx = TRUE)
 }
 \arguments{
 \item{file}{path to sorter data file}

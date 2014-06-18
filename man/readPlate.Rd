@@ -4,7 +4,7 @@
 \title{Read in the sorter data with minimal processing}
 \usage{
 readPlate(file, tofmin = 0, tofmax = 10000, extmin = 0, extmax = 10000,
-  SVM = TRUE, BIOSORT = TRUE)
+  SVM = TRUE, ReFlx = TRUE)
 }
 \arguments{
 \item{file}{path to sorter data file}
@@ -18,6 +18,8 @@ readPlate(file, tofmin = 0, tofmax = 10000, extmin = 0, extmax = 10000,
 \item{extmax}{maximum cut off for extinction, defaults to 10000}
 
 \item{SVM}{logical dictating whether to predict bubbles with the SVM}
+
+\item{reflx}{logical indicating whether ReFLx}
 }
 \description{
 Returns a minimally processed data frame, optionally with SVM-mediated bubble prediction.
