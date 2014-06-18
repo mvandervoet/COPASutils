@@ -93,7 +93,7 @@ readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=
 summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends=FALSE) {
     plate <- plate[as.character(plate$call50)=="object" | plate$TOF==-1 | is.na(as.character(plate$call50)),]
     plate <- fillWells(plate)
-    processed <- plate %>% group_by(row, col) %>% summarise(n=ifelse(length(TOF[!is.na(TOF)])==0, NA, length(TOF[!is.na(TOF)])),
+    processed <- suppressWarnings(plate %>% group_by(row, col) %>% summarise(n=ifelse(length(TOF[!is.na(TOF)])==0, NA, length(TOF[!is.na(TOF)])),
                                                             n.sorted=sum(sort==6),
                                                             
                                                             mean.TOF=mean(TOF, na.rm=TRUE),
@@ -247,7 +247,7 @@ summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends
                                                             median.log.norm.yellow=median(log(norm.yellow), na.rm=TRUE),
                                                             q75.log.norm.yellow=as.numeric(quantile(log(norm.yellow), probs=0.75, na.rm=TRUE)[1]),
                                                             q90.log.norm.yellow=as.numeric(quantile(log(norm.yellow), probs=0.90, na.rm=TRUE)[1]),
-                                                            max.log.norm.yellow=as.numeric(quantile(log(norm.yellow), na.rm=TRUE)[5]))
+                                                            max.log.norm.yellow=as.numeric(quantile(log(norm.yellow), na.rm=TRUE)[5])))
 
     if(!ends){
         processed <- processed[,-(grep("min", colnames(processed)))]
@@ -326,9 +326,11 @@ plotTrait = function(plate, trait, trait2=NULL, type="heat"){
         plot = ggplot(plate) + geom_point(aes_string(x = trait, y = trait2), size=1.5) + presentation + xlab(trait) + ylab(trait2) +
                theme(axis.text.x=element_text(size="10", angle=45, hjust=1), axis.text.y=element_text(size="10"))
     } else if(type == "hist"){
-        badWells = plate[is.na(plate[,which(colnames(plate)==trait)]),c("row", "col")]
-        badWells = paste0(badWells$row, badWells$col)
-        plate = removeWells(plate, badWells, drop=TRUE)
+        if(sum(is.na(plate[,which(colnames(plate)==trait)])) > 0){
+            badWells = plate[is.na(plate[,which(colnames(plate)==trait)]),c("row", "col")]
+            badWells = paste0(badWells$row, badWells$col)
+            plate = removeWells(plate, badWells, drop=TRUE)
+        }
         plot = ggplot(plate) + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/15) + presentation + xlab(trait) + ylab("Count") +
                theme(axis.text.x=element_text(size="10", angle=45, hjust=1), axis.text.y=element_text(size="10"))
     } else {
