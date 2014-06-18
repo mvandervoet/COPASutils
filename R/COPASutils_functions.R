@@ -316,12 +316,8 @@ removeWells <- function(plate, badWells, drop=FALSE) {
 #' plateTrait(plate, "TOF", type="hist") #will create a histogram of TOF for each well
 
 plotTrait = function(plate, trait, trait2=NULL, type="heat"){
-    plate = fillWells(plate)
-    plate$label <- ifelse(is.na(plate[,which(colnames(plate)==trait)]), "", plate[,which(colnames(plate)==trait)])
-    plate[,c("row", "col")] <- list(as.factor(plate$row), as.factor(plate$col))
-    levels(plate$row) <- LETTERS[1:8]
-    levels(plate$col) <- 1:12
     if(type == "heat"){
+        plate$label <- ifelse(is.na(plate[,which(colnames(plate)==trait)]), "", plate[,which(colnames(plate)==trait)])
         plot = ggplot(plate) + geom_rect(aes_string(xmin=0,xmax=5,ymin=0,ymax=5,fill=trait)) +
                geom_text(aes(x=2.5,y=2.5,label=label, colour="white"), colour="white")+presentation +
                theme(axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), axis.text.x=element_blank(), axis.text.y=element_blank()) +
@@ -330,8 +326,10 @@ plotTrait = function(plate, trait, trait2=NULL, type="heat"){
         plot = ggplot(plate) + geom_point(aes_string(x = trait, y = trait2), size=1.5) + presentation + xlab(trait) + ylab(trait2) +
                theme(axis.text.x=element_text(size="10", angle=45, hjust=1), axis.text.y=element_text(size="10"))
     } else if(type == "hist"){
-        plate2 = na.omit(plate)
-        plot = ggplot(plate2) + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/15) + presentation + xlab(trait) + ylab("Count") +
+        badWells = plate[is.na(plate[,which(colnames(plate)==trait)]),c("row", "col")]
+        badWells = paste0(badWells$row, badWells$col)
+        plate = removeWells(plate, badWells, drop=TRUE)
+        plot = ggplot(plate) + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/15) + presentation + xlab(trait) + ylab("Count") +
                theme(axis.text.x=element_text(size="10", angle=45, hjust=1), axis.text.y=element_text(size="10"))
     } else {
         stop("Unrecognized plot type")
@@ -373,7 +371,7 @@ plotCorMatrix = function(plate1, plate2=plate1){
         stop("Both plates must be summarized")
     }
     if(ncol(plate1) != ncol(plate2)){
-        stop("Both plates to have the same number of traits")
+        stop("Both plates have to have the same number of traits")
     }
     corDF = melt(cor(plate1[,-(1:2)], plate2[,-(1:2)], use = "complete.obs"))
     colnames(corDF) = c("Plate1", "Plate2", "Correlation")
