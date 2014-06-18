@@ -372,7 +372,7 @@ plotCorMatrix = function(plate1, plate2=plate1){
     if(nrow(plate1) != 96 | nrow(plate2) != 96){
         stop("Both plates must be summarized")
     }
-    if(nrow(plate1) != nrow(plate2)){
+    if(ncol(plate1) != ncol(plate2)){
         stop("Both plates to have the same number of traits")
     }
     corDF = melt(cor(plate1[,-(1:2)], plate2[,-(1:2)], use = "complete.obs"))
