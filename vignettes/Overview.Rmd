@@ -2,13 +2,12 @@
 %\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{An overview of the COPASutils package}
 -->
----
-output:
-  html_document:
-    fig_width: 10
-  pdf_document: default
----
-Using the COPASutils package to read, process, and analyze COPAS data
+
+```{r echo=FALSE, message=FALSE}
+require(knitr)
+```
+
+An overview of the COPASutils package
 ========================================================
 
 In this example, we will be using the COPASutils package to read in, process, and analyze data resulting fram a Genome Wide Association Study (GWAS) using *Caenorhabditis elegans* nematode worms and a COPAS BIOSORT large particle flow cytometer. This example assumes that the COPASutils package is installed, with all necessary dependecies on your local machine. To install the COPASutils package, you can use the command `install.packages("COPASutils")`.
@@ -17,6 +16,7 @@ We will begin by requiring the COPASutils package so that we can utilize the ass
 
 ```{r set-options, echo=FALSE, cache=FALSE}
 options(width = 120)
+opts_knit$set(root.dir = '../inst/data/')
 ```
 
 ```{r message=FALSE}
@@ -28,7 +28,7 @@ require(COPASutils)
 We can now read in the plate data from one of the example data sets. In the GWAS experimental design, each plate is set up with three worms sorted to each well in every other column. We have included an example data set, called "control_setup.txt" that illustrates this step of the experiment and we will read this file in first and save it to a data frame called `setupRaw`:
 
 ```{r}
-setupRaw <- readPlate("control_setup.txt")
+setupRaw <- readPlate("plateData1.txt")
 ```
 
 If we look at the head of this data frame we can begin to step through the different data that are output by the COPAS machine:
@@ -42,14 +42,14 @@ We can see that the COPAS machine groups the output data primarily by row and co
 If you would like to remove the last two columns (i.e. read in data without the help of the SVM), you can set the `SVM` argument to FALSE, as below:
 
 ```{r}
-setupRaw2 <- readPlate("control_setup.txt", SVM=FALSE)
+setupRaw2 <- readPlate("plateData1.txt", SVM=FALSE)
 head(setupRaw2)
 ```
 
 We can also set cutoffs for minimum and maximum time of flight and extinction values as such:
 
 ```{r}
-setupRaw3 <- readPlate("control_setup.txt", tofmin=60, tofmax=1000, extmin=50, extmax=500)
+setupRaw3 <- readPlate("plateData1.txt", tofmin=60, tofmax=1000, extmin=50, extmax=500)
 head(setupRaw3)
 ```
 
@@ -141,7 +141,7 @@ plotTrait(setupRaw, "TOF", "EXT", type="scatter")
 We may also want to compare how traits differ across plates. Included in the package is a function called `plotCompare` that accomplishes this very task. Here, we'll compare the distributions of the time-of-flight values between the data in `setupRaw` and a new plate called `scoreRaw`. These two plates will be entered as a list to the first argument in the function. Then, we'll specify the trait to be compared (`TOF` in this case). Finally we'll enter in a vector of the plates names as the optional third argument:
 
 ```{r warning=FALSE, fig.width=10}
-scoreRaw <- readPlate("control_score.txt")
+scoreRaw <- readPlate("plateData2.txt")
 plotCompare(list(setupRaw, scoreRaw), "TOF", plateNames=c("Setup", "Score"))
 ```
 
@@ -167,7 +167,7 @@ plotCorMatrix(setupSummarized, scoreSummarized)
 If we now transition to some new data, representing an experiment in which drug dose response curves were measured, we can utilize our the last plot function in the package, `plotDR`. We will first read in our example data set, called `"doses.txt"`. We will then summarize this data, filling in the strains with a 96 element vector sorresponding to the names of the strains across a plate, row-wise.
 
 ```{r}
-dosesRaw <- readPlate("doses.txt")
+dosesRaw <- readPlate("doseData.txt")
 strains <- rep(c("Strain 1", "Strain 2", "Strain 3", "Strain 4"), each=6, times=4)
 dosesSummarized <- summarizePlate(dosesRaw, strains)
 doses <- rep(c(0,2.5,5,10,20,NA), times=16)
