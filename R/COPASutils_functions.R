@@ -11,12 +11,12 @@
 #' readSorter("SortTest.txt", 60, 2000, 60, 5000)
 #' readSorter("SortTest.txt", tofmin=60, extmin=60)
 
-readSorter <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, BIOSORT=TRUE)  {
+readSorter <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, reflx=TRUE)  {
     data <- read.delim(file=file, header=T, na.strings=c("n/a"), as.is=T, stringsAsFactors=F)
     data <- data[!is.na(data$TOF),]
     data <- data[,!is.na(data[1,])]
     data <- data[(data$TOF>=tofmin & data$TOF<=tofmax) | data$TOF == -1,]
-    if(BIOSORT){
+    if(reflx){
         data <- data[(data$EXT>=extmin & data$EXT<=extmax) | data$EXT == -1,]
         data$Column <- as.factor(data$Column)
         data$Row <- as.factor(data$Row)
@@ -53,14 +53,15 @@ extractTime <- function(plate){
 #' @param extmin minimum cut off for extinction, defaults to 0
 #' @param extmax maximum cut off for extinction, defaults to 10000
 #' @param SVM logical dictating whether to predict bubbles with the SVM
+#' @param reflx logical indicating whether ReFLx
 #' @export
 #' @examples
 #' readSorterData("SortTest.txt", 60, 2000, 60, 5000, SVM=FALSE)
 #' readSorterData("SortTest.txt", tofmin=60, extmin=60, SVM=TRUE, normalize=TRUE)
 
-readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=TRUE, BIOSORT=TRUE) {
-    plate <- readSorter(file, tofmin, tofmax, extmin, extmax, BIOSORT)
-    if(BIOSORT){
+readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=TRUE, reflx=TRUE) {
+    plate <- readSorter(file, tofmin, tofmax, extmin, extmax, reflx)
+    if(reflx){
         modplate <- with(plate, data.frame(row=Row, col=as.factor(Column), sort=Status.sort, TOF=TOF, EXT=EXT, time=Time.Stamp, green=Green, yellow=Yellow, red=Red))
     } else {
         modplate <- with(plate, data.frame(row=Row, col=as.factor(Column), sort=Sorted.status, TOF=TOF, EXT=Extinction, time=Time, green=Green, yellow=Yellow, red=Red))
@@ -267,7 +268,7 @@ summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends
         analysis <- analysis[order(analysis$strain),]
         analysis <- analysis[order(analysis$row, analysis$col),]
     }
-    analysis[which(analysis$mean.TOF==-1) | which(is.na(analysis$mean.TOF)),which(colnames(analysis)=="n"):ncol(analysis)] <- NA
+    analysis[analysis$mean.TOF==-1 | is.na(analysis$mean.TOF),which(colnames(analysis)=="n"):ncol(analysis)] <- NA
     return(analysis)
 }
 
