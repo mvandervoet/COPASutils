@@ -70,7 +70,7 @@ readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=
     modplate[,10:13] <- apply(modplate[,c(5, 7:9)], 2, function(x){x/modplate$TOF})
     colnames(modplate)[10:13] <- c("norm.EXT", "norm.green", "norm.yellow", "norm.red")
     if(SVM){
-        plateprediction <- predict(bubbleSVMmodel_noProfiler, modplate[,3:length(modplate)], type="probabilities")
+        plateprediction <- predict(bubbleSVMmodel_noProfiler, modplate[,4:9], type="probabilities")
         modplate$object <- plateprediction[,"1"]
         modplate$call50 <- factor(as.numeric(modplate$object>0.5), levels=c(1,0), labels=c("object", "bubble"))
     }
@@ -288,15 +288,19 @@ removeWells <- function(plate, badWells, drop=FALSE) {
     sp.bw <- str_split(badWells, "", 3)
     if(!drop){
         for (i in seq(1, length(sp.bw))) {
-            row <- sp.bw[[i]][2]
-            col <- sp.bw[[i]][3]
-            plate[which(plate$row == row & plate$col == col),-(which(colnames(plate) %in% c("row", "col", "strain")))] <- NA
+            if(length(sp.bw) > 0){
+                row <- as.character(sp.bw[[i]][2])
+                col <- as.character(sp.bw[[i]][3])
+                plate[which(plate$row == row & plate$col == col),-(which(colnames(plate) %in% c("row", "col", "strain", "date", "assay", "strain", "experiment", "round", "plate", "drug")))] <- NA
+            }
         }
     } else {
         for (i in seq(1, length(sp.bw))) {
-            row <- sp.bw[[i]][2]
-            col <- sp.bw[[i]][3]
-            plate = plate[plate$row != row | plate$col != col,]
+            if(length(sp.bw) > 0){
+                row <- sp.bw[[i]][2]
+                col <- sp.bw[[i]][3]
+                plate = plate[plate$row != row | plate$col != col,]
+            }
         }
     }
     return(plate)

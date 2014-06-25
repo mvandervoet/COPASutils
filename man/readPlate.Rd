@@ -4,7 +4,7 @@
 \title{Read in the sorter data with minimal processing}
 \usage{
 readPlate(file, tofmin = 0, tofmax = 10000, extmin = 0, extmax = 10000,
-  SVM = TRUE, ReFlx = TRUE)
+  SVM = TRUE, reflx = TRUE)
 }
 \arguments{
 \item{file}{path to sorter data file}
