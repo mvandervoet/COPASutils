@@ -13,7 +13,7 @@ plotCompare(plates, trait, plateNames = NULL)
 \item{plateNames}{an optional character vector with the names of the individual plates; if no names are entered, numbers will be used in the order the data frames are entered}
 }
 \description{
-Plot the value (bar plot, if summerized) or distribution (boxplot, if unsummarized) of the data from each well across multiple plates.
+Plot the value (bar plot, if summarized) or distribution (boxplot, if unsummarized) of the data from each well across multiple plates.
 }
 \examples{
 plotCompare(list(plateA, plateB, plateC), "n", c("Plate A", "Plate B", "Plate C"))

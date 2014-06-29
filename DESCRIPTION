@@ -1,9 +1,11 @@
 Package: COPASutils
 Title: COPASutils
 Version: 0.1
-Authors@R: "Tyler Shimko <TShimko126@gmail.com> [aut, cre]"
+Author: Tyler Shimko <TShimko126@gmail.com>, Erik Andersen
+    <erik.andersen@northwestern.edu>
+Maintainer: Tyler Shimko <TShimko126@gmail.com>
 Description: Quick and easy analysis of data from Union Biometrica COPAS
-    BIOSORT large particle flow cytometer
+    platform large particle flow cytometers
 Depends:
     R (>= 3.0),
     dplyr (>= 0.2),

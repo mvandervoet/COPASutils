@@ -6,6 +6,7 @@
 #' @param tofmax maximum cut off for time of flight, defaults to 10000
 #' @param extmin minimum cut off for extinction, defaults to 0
 #' @param extmax maximum cut off for extinction, defaults to 10000
+#' @param reflx logical indicating whether ReFLx module was used (TRUE) or LP Sampler was used (FALSE), defaults to TRUE
 #' @export
 #' @examples
 #' readSorter("SortTest.txt", 60, 2000, 60, 5000)
@@ -13,6 +14,9 @@
 
 readSorter <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, reflx=TRUE)  {
     data <- read.delim(file=file, header=T, na.strings=c("n/a"), as.is=T, stringsAsFactors=F)
+    if(is.null(data$EXT) & reflx){
+        stop("This file appears to have come from a machine with an LP Sampler, not a reflex module. Please set `reflx` = FALSE and try again.")
+    }
     data <- data[!is.na(data$TOF),]
     data <- data[,!is.na(data[1,])]
     data <- data[(data$TOF>=tofmin & data$TOF<=tofmax) | data$TOF == -1,]
@@ -22,7 +26,6 @@ readSorter <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, ref
         data$Row <- as.factor(data$Row)
     } else {
         data <- data[(data$Extinction>=extmin & data$Extinction<=extmax) | data$Extinction == -1,]
-        data[,c("Row", "Column")] <- do.call(rbind, str_split(data$Source.well, "", n=3))[,c(2,3)]
         data$Column <- as.factor(data$Column)
         data$Row <- as.factor(data$Row)
     }
@@ -53,7 +56,7 @@ extractTime <- function(plate){
 #' @param extmin minimum cut off for extinction, defaults to 0
 #' @param extmax maximum cut off for extinction, defaults to 10000
 #' @param SVM logical dictating whether to predict bubbles with the SVM
-#' @param reflx logical indicating whether ReFLx
+#' @param reflx logical indicating whether ReFLx module was used (TRUE) or LP Sampler was used (FALSE), defaults to TRUE
 #' @export
 #' @examples
 #' readSorterData("SortTest.txt", 60, 2000, 60, 5000, SVM=FALSE)
@@ -309,9 +312,9 @@ removeWells <- function(plate, badWells, drop=FALSE) {
 
 #' Create faceted plots for every well in a 96-well plate
 #' 
-#' Returns ggplot2 object that is facted by row and column. By default, it will plot a heat map for the trait specified as a string. Other options include scatterplots and histograms.
+#' Returns ggplot2 object that is faceted by row and column. By default, it will plot a heat map for the trait specified as a string. Other options include scatterplots and histograms.
 #' @param plate a plate data frame, either summarized or unsummarized, to plot
-#' @param trait the trait to plot in a heatmap or histogram or the independent variable in a scatterplot, enter as a string
+#' @param trait the trait to plot in a heat map or histogram or the independent variable in a scatter plot, enter as a string
 #' @param trait2 the trait which will be the dependent variable for the scatter plot, enter as a string
 #' @param type the type of plot, either "heat" for heatmap, "scatter" for scatter plot, or "hist" for histogram, defaults to "heat"
 #' @export
@@ -395,7 +398,7 @@ plotCorMatrix = function(plate1, plate2=plate1){
 #' @param trait a singular trait to test, defaults to NULL and will test all traits
 #' @export
 #' @examples
-#' edgeEffect(plateA) #will return a dataframe of all pvalues for all trait tests
+#' edgeEffect(plateA) #will return a dataframe of all p values for all trait tests
 #' edgeEffect(plateA, "n") #will return a single value for the p value of the test with respect to the number of worms per well
 
 edgeEffect = function(plate, trait=NULL){
@@ -411,7 +414,7 @@ edgeEffect = function(plate, trait=NULL){
     total = total[,-(ncol(total))]
     if(missing(trait)){
         pval = as.data.frame(apply(total, 2, function(x){
-            t.test(x[which(pos == "edge")], x[which(pos == "center")])$p.value
+            wilcox.test(x[which(pos == "edge")], x[which(pos == "center")])$p.value
         }))
         pval$Trait = rownames(pval)
         rownames(pval) = NULL
@@ -426,7 +429,7 @@ edgeEffect = function(plate, trait=NULL){
 
 #' Visualize and compare values and distributions across multiple plates
 #' 
-#' Plot the value (bar plot, if summerized) or distribution (boxplot, if unsummarized) of the data from each well across multiple plates.
+#' Plot the value (bar plot, if summarized) or distribution (boxplot, if unsummarized) of the data from each well across multiple plates.
 #' @param plates the list of plate data frames to compare
 #' @param trait the trait to compare, entered as a string
 #' @param plateNames an optional character vector with the names of the individual plates; if no names are entered, numbers will be used in the order the data frames are entered

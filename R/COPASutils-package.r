@@ -1,4 +1,4 @@
-#' COPASutils - Easy reading, processing, and manipution of COPAS BIOSORT data.
+#' COPASutils - Easy reading, processing, and manipulation of COPAS BIOSORT data.
 #'
 #' @name COPASutils
 #' @docType package

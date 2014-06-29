@@ -16,6 +16,8 @@ readSorter(file, tofmin = 0, tofmax = 10000, extmin = 0, extmax = 10000,
 \item{extmin}{minimum cut off for extinction, defaults to 0}
 
 \item{extmax}{maximum cut off for extinction, defaults to 10000}
+
+\item{reflx}{logical indicating whether ReFLx module was used (TRUE) or LP Sampler was used (FALSE), defaults to TRUE}
 }
 \description{
 Reads a raw sorter file into a dataframe, removing NA values and any objects not fitting in to the min and max cut offs.
