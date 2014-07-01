@@ -8,14 +8,14 @@ plotTrait(plate, trait, trait2 = NULL, type = "heat")
 \arguments{
 \item{plate}{a plate data frame, either summarized or unsummarized, to plot}
 
-\item{trait}{the trait to plot in a heatmap or histogram or the independent variable in a scatterplot, enter as a string}
+\item{trait}{the trait to plot in a heat map or histogram or the independent variable in a scatter plot, enter as a string}
 
 \item{trait2}{the trait which will be the dependent variable for the scatter plot, enter as a string}
 
 \item{type}{the type of plot, either "heat" for heatmap, "scatter" for scatter plot, or "hist" for histogram, defaults to "heat"}
 }
 \description{
-Returns ggplot2 object that is facted by row and column. By default, it will plot a heat map for the trait specified as a string. Other options include scatterplots and histograms.
+Returns ggplot2 object that is faceted by row and column. By default, it will plot a heat map for the trait specified as a string. Other options include scatterplots and histograms.
 }
 \examples{
 plotTrait(plate, "n") #will create a heatmap of the number of objects per well from summarized data

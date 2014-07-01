@@ -19,7 +19,7 @@ readPlate(file, tofmin = 0, tofmax = 10000, extmin = 0, extmax = 10000,
 
 \item{SVM}{logical dictating whether to predict bubbles with the SVM}
 
-\item{reflx}{logical indicating whether ReFLx}
+\item{reflx}{logical indicating whether ReFLx module was used (TRUE) or LP Sampler was used (FALSE), defaults to TRUE}
 }
 \description{
 Returns a minimally processed data frame, optionally with SVM-mediated bubble prediction.
