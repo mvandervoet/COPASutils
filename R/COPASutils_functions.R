@@ -291,7 +291,7 @@ removeWells <- function(plate, badWells, drop=FALSE) {
             if(length(sp.bw) > 0){
                 row <- as.character(sp.bw[[i]][2])
                 col <- as.character(sp.bw[[i]][3])
-                plate[which(plate$row == row & plate$col == col),-(which(colnames(plate) %in% c("row", "col", "strain", "date", "assay", "strain", "experiment", "round", "plate", "drug")))] <- NA
+                plate[which(plate$row == row & plate$col == col),which(colnames(plate)=="n"):ncol(plate)] <- NA
             }
         }
     } else {
