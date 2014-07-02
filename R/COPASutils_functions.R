@@ -1,3 +1,39 @@
+#' BioSorter
+#' 
+#' Raw data resulting from a BioSorter Machine with LP Sampler
+#' @name BioSorter
+NULL
+
+#' bubbleSVMmodel_noProfiler
+#' 
+#' Data used by the SVM when removing bubbles in readPlate
+#' @name bubbleSVMmodel_noProfiler
+NULL
+
+#' doseData
+#' 
+#' Data resulting from a dose response curve experiement
+#' @name doseData
+NULL
+
+#' plateData1
+#' 
+#' Data resulting from a C. elegans GWAS experiment setup
+#' @name plateData1
+NULL
+
+#' plateData2
+#' 
+#' Data resulting from a C. elegans GWAS experiment score
+#' @name plateData2
+NULL
+
+#' presentation
+#' 
+#' Data for making retty plots
+#' @name presentation
+NULL
+
 #' Read in raw sorter data
 #' 
 #' Reads a raw sorter file into a dataframe, removing NA values and any objects not fitting in to the min and max cut offs.
