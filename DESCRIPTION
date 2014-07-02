@@ -1,11 +1,9 @@
 Package: COPASutils
 Title: COPASutils
 Version: 0.1
-Author: Tyler Shimko <TShimko126@gmail.com>, Erik Andersen
-    <erik.andersen@northwestern.edu>
-Maintainer: Tyler Shimko <TShimko126@gmail.com>
-Description: Quick and easy analysis of data from Union Biometrica COPAS
-    platform large particle flow cytometers
+Author: Tyler Shimko <TShimko126@gmail.com>, Erik Andersen <erik.andersen@northwestern.edu>
+Maintainer: Erik Andersen <erik.andersen@northwestern.edu>
+Description: COPASutils provides a logical workflow for the reading, processing, and visualization of data obtained from the Union Biometrica Complex Object Parametric Analyzer and Sorter (COPAS) platform large-particle flow cytometers and offers a powerful suite of functions for the rapid processing and analysis of large high-throughput screening data sets.
 Depends:
     R (>= 3.0),
     dplyr (>= 0.2),
