@@ -15,8 +15,4 @@ removeWells(plate, badWells, drop = FALSE)
 \description{
 Returns a data frame representing a plate with bad wells removed (either with phenotype variables set to NA or rows dropped entirely).
 }
-\examples{
-removeWells(processedPlate, c("A1", "B7", "F12")) #Sets phenotype values for wells A1, B7, and F12 to NA
-removeWells(processedPlate, c("A1", "B7", "F12"), drop=TRUE) #Removes rows corresponding to wells A1, B7, and F12
-}
 

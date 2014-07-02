@@ -15,7 +15,4 @@ plotCompare(plates, trait, plateNames = NULL)
 \description{
 Plot the value (bar plot, if summarized) or distribution (boxplot, if unsummarized) of the data from each well across multiple plates.
 }
-\examples{
-plotCompare(list(plateA, plateB, plateC), "n", c("Plate A", "Plate B", "Plate C"))
-}
 

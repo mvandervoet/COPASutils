@@ -18,8 +18,4 @@ summarizePlate(plate, strains = NULL, quantiles = FALSE, log = FALSE,
 \description{
 Returns a data frame with one row per well with summary statistics.
 }
-\examples{
-processWells(plate, quantiles=TRUE)
-processWells(plate, quantiles=TRUE, log=TRUE)
-}
 

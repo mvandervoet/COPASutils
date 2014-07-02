@@ -8,9 +8,6 @@
 #' @param extmax maximum cut off for extinction, defaults to 10000
 #' @param reflx logical indicating whether ReFLx module was used (TRUE) or LP Sampler was used (FALSE), defaults to TRUE
 #' @export
-#' @examples
-#' readSorter("SortTest.txt", 60, 2000, 60, 5000)
-#' readSorter("SortTest.txt", tofmin=60, extmin=60)
 
 readSorter <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, reflx=TRUE)  {
     data <- read.delim(file=file, header=T, na.strings=c("n/a"), as.is=T, stringsAsFactors=F)
@@ -58,9 +55,6 @@ extractTime <- function(plate){
 #' @param SVM logical dictating whether to predict bubbles with the SVM
 #' @param reflx logical indicating whether ReFLx module was used (TRUE) or LP Sampler was used (FALSE), defaults to TRUE
 #' @export
-#' @examples
-#' readSorterData("SortTest.txt", 60, 2000, 60, 5000, SVM=FALSE)
-#' readSorterData("SortTest.txt", tofmin=60, extmin=60, SVM=TRUE, normalize=TRUE)
 
 readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=TRUE, reflx=TRUE) {
     plate <- readSorter(file, tofmin, tofmax, extmin, extmax, reflx)
@@ -90,9 +84,6 @@ readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=
 #' @param quantiles if TRUE, columns of trait quantiles (every fifth) will be added to the output dataframe, defaults to FALSE
 #' @param log if TRUE, columns of log transformed EXT and red fluorescence will be added to output dataframe, defaults to FALSE
 #' @export
-#' @examples
-#' processWells(plate, quantiles=TRUE)
-#' processWells(plate, quantiles=TRUE, log=TRUE)
 
 summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends=FALSE) {
     plate <- plate[as.character(plate$call50)=="object" | plate$TOF==-1 | is.na(as.character(plate$call50)),]
@@ -283,9 +274,6 @@ summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends
 #' @param badWells a character vector consisting of all wells to remove
 #' @param drop a logical value dictating whether to drop wells from the data frame or set measured values to NA, defaults to FALSE
 #' @export
-#' @examples
-#' removeWells(processedPlate, c("A1", "B7", "F12")) #Sets phenotype values for wells A1, B7, and F12 to NA
-#' removeWells(processedPlate, c("A1", "B7", "F12"), drop=TRUE) #Removes rows corresponding to wells A1, B7, and F12
 
 removeWells <- function(plate, badWells, drop=FALSE) {
     sp.bw <- str_split(badWells, "", 3)
@@ -318,10 +306,6 @@ removeWells <- function(plate, badWells, drop=FALSE) {
 #' @param trait2 the trait which will be the dependent variable for the scatter plot, enter as a string
 #' @param type the type of plot, either "heat" for heatmap, "scatter" for scatter plot, or "hist" for histogram, defaults to "heat"
 #' @export
-#' @examples
-#' plotTrait(plate, "n") #will create a heatmap of the number of objects per well from summarized data
-#' plateTrait(plate, "TOF", "EXT", "scatter") #will create a scatter plot of EXT by TOF for each well
-#' plateTrait(plate, "TOF", type="hist") #will create a histogram of TOF for each well
 
 plotTrait = function(plate, trait, trait2=NULL, type="heat"){
     if(type == "heat"){
@@ -354,8 +338,6 @@ plotTrait = function(plate, trait, trait2=NULL, type="heat"){
 #' Returns a data frame with any missing wells filled in as NA for all measured data
 #' @param plate the data frame of the plate to filled
 #' @export
-#' @examples
-#' fillWells(plate) #returns the plate data frame with all missing wells filled with NAs
 
 fillWells = function(plate){
     complete = data.frame(row=rep(LETTERS[1:8], each=12), col=rep(1:12, 8))
@@ -370,9 +352,6 @@ fillWells = function(plate){
 #' @param plate1 one plate to compare in the correlation matrix
 #' @param plate2 an optional plate to compare plate1 to, defaults to plate1, if no argument is entered plate1 will be compared to itself
 #' @export
-#' @examples
-#' plotCorMatrix(plateA, plateB) #will plot a correlation matrix for all traits between plateA and plateB
-#' plotCorMatrix(plateA) #will plot a correlation matrix for all traits within plateA
 
 plotCorMatrix = function(plate1, plate2=plate1){
     plate1 = fillWells(plate1)
@@ -397,9 +376,6 @@ plotCorMatrix = function(plate1, plate2=plate1){
 #' @param plate a summarized and filled plate data frame
 #' @param trait a singular trait to test, defaults to NULL and will test all traits
 #' @export
-#' @examples
-#' edgeEffect(plateA) #will return a dataframe of all p values for all trait tests
-#' edgeEffect(plateA, "n") #will return a single value for the p value of the test with respect to the number of worms per well
 
 edgeEffect = function(plate, trait=NULL){
     if(nrow(plate) != 96){
@@ -434,8 +410,6 @@ edgeEffect = function(plate, trait=NULL){
 #' @param trait the trait to compare, entered as a string
 #' @param plateNames an optional character vector with the names of the individual plates; if no names are entered, numbers will be used in the order the data frames are entered
 #' @export
-#' @examples
-#' plotCompare(list(plateA, plateB, plateC), "n", c("Plate A", "Plate B", "Plate C"))
 
 plotCompare = function(plates, trait, plateNames=NULL){
     if(!is.null(plateNames) & length(plateNames) != length(plates)){

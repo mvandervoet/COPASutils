@@ -24,8 +24,4 @@ readPlate(file, tofmin = 0, tofmax = 10000, extmin = 0, extmax = 10000,
 \description{
 Returns a minimally processed data frame, optionally with SVM-mediated bubble prediction.
 }
-\examples{
-readSorterData("SortTest.txt", 60, 2000, 60, 5000, SVM=FALSE)
-readSorterData("SortTest.txt", tofmin=60, extmin=60, SVM=TRUE, normalize=TRUE)
-}
 

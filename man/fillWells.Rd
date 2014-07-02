@@ -11,7 +11,4 @@ fillWells(plate)
 \description{
 Returns a data frame with any missing wells filled in as NA for all measured data
 }
-\examples{
-fillWells(plate) #returns the plate data frame with all missing wells filled with NAs
-}
 

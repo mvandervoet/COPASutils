@@ -13,8 +13,4 @@ edgeEffect(plate, trait = NULL)
 \description{
 Test for an effect of the position of wells in a 96 well plate. This function will split a plate population by edge wells and center wells and test the two populations for significant differences in either a specific trait or all traits if a trait is not specified.
 }
-\examples{
-edgeEffect(plateA) #will return a dataframe of all p values for all trait tests
-edgeEffect(plateA, "n") #will return a single value for the p value of the test with respect to the number of worms per well
-}
 

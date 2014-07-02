@@ -22,8 +22,4 @@ readSorter(file, tofmin = 0, tofmax = 10000, extmin = 0, extmax = 10000,
 \description{
 Reads a raw sorter file into a dataframe, removing NA values and any objects not fitting in to the min and max cut offs.
 }
-\examples{
-readSorter("SortTest.txt", 60, 2000, 60, 5000)
-readSorter("SortTest.txt", tofmin=60, extmin=60)
-}
 

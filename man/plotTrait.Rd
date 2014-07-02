@@ -17,9 +17,4 @@ plotTrait(plate, trait, trait2 = NULL, type = "heat")
 \description{
 Returns ggplot2 object that is faceted by row and column. By default, it will plot a heat map for the trait specified as a string. Other options include scatterplots and histograms.
 }
-\examples{
-plotTrait(plate, "n") #will create a heatmap of the number of objects per well from summarized data
-plateTrait(plate, "TOF", "EXT", "scatter") #will create a scatter plot of EXT by TOF for each well
-plateTrait(plate, "TOF", type="hist") #will create a histogram of TOF for each well
-}
 

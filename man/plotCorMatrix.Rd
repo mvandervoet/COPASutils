@@ -13,8 +13,4 @@ plotCorMatrix(plate1, plate2 = plate1)
 \description{
 Returns a ggplot2 object of a correlation plot for all traits within a single plate or between two plates
 }
-\examples{
-plotCorMatrix(plateA, plateB) #will plot a correlation matrix for all traits between plateA and plateB
-plotCorMatrix(plateA) #will plot a correlation matrix for all traits within plateA
-}
 
