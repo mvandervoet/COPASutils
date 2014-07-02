@@ -27,7 +27,7 @@ library(COPASutils)
 
 ## Reading Data
 
-We can now read in the plate data from one of the example data sets. In this GWAS experimental design, each plate is set up with three worms sorted to each well in every other column. An example data set, called "plateData1.txt", that illustrates this step of the experiment is available from the Andersen Laboratory (Northwestern University) website. This text file is a representative sample of raw data collected from a Union Biometrica BIOSORT large particle flow cytometer with ReFLx sampler. We will read this file in first and save it to a data frame called `setupRaw`:
+We can now read in the plate data from one of the example data sets. In this GWAS experimental design, each plate is set up with three worms sorted to each well in every other column. An example data set, called "plateData1.txt", that illustrates this step of the experiment is available from the Andersen Laboratory website (andersenlab.org). This text file is a representative example of raw data collected from a Union Biometrica BIOSORT large particle flow cytometer with ReFLx sampler. We will first read this file in and save it to a data frame called `setupRaw`:
 
 ```{r}
 setupRaw <- readPlate("plateData1.txt")
@@ -39,7 +39,7 @@ If we look at the head of this data frame we can begin to step through the diffe
 head(setupRaw)
 ```
 
-We can see that the COPAS machine groups the output data primarily by row and column of a 96-well plate, represented by the columns `row` and `col` in the above data frame. Each row in the data frame represents the readings for a single object. Working through the columns left to right, we see that the sorter returns the sort status of the object in the `sort` column (for our purposes, we are only concerned with instances where sort = 6, as these worms were sorted to the respective wells in the target plate). We then see `TOF` which stands for "time of flight" or a measure of the length of the object in microns. Next is `EXT` or "extinction", a measure of the optical density of the object . Following this is the `time` column which represents the relative time from the first object sorted in each well. Using this scheme, the first object to pass through the flow cell for each well will therefore be assigned a time of 0. Next are the peak height values for each of the fluorescence channels, indicated by the `green`, `yellow`, and `red` columns. The next four columns contain the data for the normalized EXT, red, green, and yellow values (value/`TOF`). Lastly the columns `object` and `call50` represent data returned from the support vector machine (SVM) that probabilistically determines whether each "object" is actually an object (cell, worm, etc.) or whether it is a bubble. This feature is useful if the experiments, like ours, requires the bubble trap hardware to be bypassed. `call50` displays "bubble" if the probability of being an object (`object`) is greater than .5, or "bubble" otherwise.
+We can see that the COPAS machine groups the output data primarily by row and column of a 96-well plate, represented by the columns `row` and `col` in the above data frame. Each row in the data frame represents the readings for a single object. Working through the columns left to right, we see that the sorter returns the sort status of the object in the `sort` column (for our purposes, we are only concerned with instances where sort = 6, as these worms were sorted to the respective wells in the target plate; for a complete explanation of sort status codes, please consult the machine's user manual). We then see `TOF` which stands for "time of flight" or a measure of the length of the object in microns. Next is `EXT` or "extinction", a measure of the optical density of the object. Following this is the `time` column which represents the relative time from the first object sorted in each well. Using this scheme, the first object to pass through the flow cell for each well will therefore be assigned a time of 0. Next are the peak height values for each of the fluorescence channels, indicated by the `green`, `yellow`, and `red` columns. The next four columns contain the data for the normalized EXT, red, green, and yellow values (value/`TOF`). Lastly the columns `object` and `call50` represent data returned from the support vector machine (SVM) that probabilistically determines whether each "object" is actually an object (cell, worm, etc.) or a bubble. This feature is useful if the experiment, like ours, requires the bubble trap hardware to be bypassed. It is important to note that the SVM was trained on data from our own machine and that its efficacy should be tested against a user's own data before any user utilizes this feature. The `call50` column displays "bubble" if the probability of being an object (`object`) is greater than .5, or "bubble" otherwise.
 
 If you would like to remove the last two columns (i.e. read in data without the help of the SVM), you can set the `SVM` argument to FALSE, as below:
 
@@ -55,7 +55,7 @@ setupRaw3 <- readPlate("plateData1.txt", tofmin=60, tofmax=1000, extmin=50, extm
 head(setupRaw3)
 ```
 
-Lastly, we can read in a data file from a BioSorter machine, which utilizes the LP Sampler instead of the BIOSORT machine's ReFLx module. We can adjust the way in which the file is read to compensate for this difference by setting the reflx parameter to `FALSE`:
+Lastly, we can read in a data file from a BioSorter machine, which utilizes the LP Sampler instead of the BIOSORT machine's ReFLx module. We can adjust the way in which the file is read to compensate for this difference by setting the `reflx` parameter to `FALSE`:
 
 ```{r}
 biosorterData <- readPlate("BioSorter.txt", reflx=FALSE)
@@ -78,7 +78,7 @@ setupSummarized2 <- summarizePlate(setupRaw, quantiles=TRUE, log=TRUE, ends=TRUE
 colnames(setupSummarized2)
 ```
 
-We now have a great deal of information describing, in detail, the distribution of each of the measured traits. Again, each subset of new trait values can be removed by leaving each of the optional parameters (quantiles, log, and ends) set to `FALSE`. Each trait follows a specific naming system, wherein any mathematical transformation imparted on the original data is added at the beginning of the trait. For instance, the mean of all of the time of flight data (TOF) for each well can be found in the column `mean.TOF`. If we wanted the column corresponding to the 25th quantile of the log transformed extinction data (EXT), we could find it in the column named `q25.log.EXT`. All of the naming conventions are outlined in the table below:
+We now have a great deal of information describing, in detail, the distribution of each of the measured traits. Again, each subset of new trait values can be removed by leaving each of the optional parameters (`quantiles`, `log`, and `ends`) set to `FALSE`. Each trait follows a specific naming system, wherein any mathematical transformation imparted on the original data is added at the beginning of the trait. For instance, the mean of all of the time of flight data (TOF) for each well can be found in the column `mean.TOF`. If we wanted the column corresponding to the 25th quantile of the log transformed extinction data (EXT), we could find it in the column named `q25.log.EXT`. All of the naming conventions are outlined in the table below:
 
 Statistic                       |  Abbreviation  |  Example
 :------------------------------:|:--------------:|:-----------------:
@@ -92,14 +92,14 @@ log transformed data            |  log           |  mean.log.red
 
 Some statistics, such as normalized and log values are calculated before the data are summarized and, as such, have a distribution of their own. For these traits, all mean, median, min, max and quantile data are available by stringing together names as in the above table.
 
-In the experiment we are examining here, no worms were sorted into the wells in the even columns. Therefore, the data we are seeing in these columns are the result of background debris or accidental placement of worms into the wells. We probably want to remove these wells before we continue with our analysis. Included in the package is a function that does exactly that. The `removeWells` function does exactly what its name implies:
+In the experiment we are examining here, it was desired that no worms be sorted into the wells in the even columns. Therefore, the data we are seeing in these columns are the result of background debris or accidental placement of worms into the wells. We now want to remove these wells before we continue with our analysis. Included in the package is the `removeWells` function, which does exactly what its name implies:
 
 ```{r}
 setupSummarized3 <- removeWells(setupSummarized, c("A2", "A4", "A6")) # All wells you want to remove need to be included here
 head(setupSummarized3[,1:10])
 ```
 
-The `removeWells` function takes as input a data frame, summarized or unsummarized, as well as a vector of string corresponding to wells to be removed and returns the data frame with all phenotype data in the frame set to NA. An optional `drop` parameter is used to specify whether to "NA out" trait data or drop those rows from the frame entirely:
+The `removeWells` function takes as input a summarized plate data frame, as well as a vector of string corresponding to wells to be removed, and returns the data frame with all phenotype data in the frame set to NA. An optional `drop` parameter is used to specify whether to "NA out" trait data or drop those rows from the frame entirely:
 
 ```{r}
 setupSummarized4 <- removeWells(setupSummarized, c("A2", "A4", "A6"), drop=TRUE)
@@ -161,19 +161,21 @@ scoreSummarized <- summarizePlate(scoreRaw)
 plotCompare(list(setupSummarized, scoreSummarized), "mean.TOF", plateNames=c("Setup", "Score"))
 ```
 
-In addition, we can also check for correlation between traits both within and across plates using a new function called `plotCorMatrix`. This function will plot a correlation heat map between all of the traits either within or between summarized plates. Hew we will examine correlations between traits within the summarized setup data:
+In addition, we can also check for correlation between traits both within and across plates using a new function called `plotCorMatrix`. This function will plot a correlation heat map between all of the traits either within or between summarized plates. Here we will examine correlations between traits within the summarized setup data:
 
 ```{r warning=FALSE, fig.width=10}
 plotCorMatrix(setupSummarized)
 ```
 
-In the above matrix we can see that some traits are positively correlated, some are negatively correlated, and some are completely uncorrelated. We can also examine these patterns between plates as such:
+In the above matrix we can see that some traits are positively correlated, some are negatively correlated, and some are completely uncorrelated.  We can also examine these patterns between plates as such:
 
 ```{r warning=FALSE, fig.width=10}
 plotCorMatrix(setupSummarized, scoreSummarized)
 ```
 
-If we now transition to some new data, representing an experiment in which drug dose response curves were measured, we can utilize the last plot function in the package, `plotDR`. We will first read in our example data set, called `"doses.txt"`. We will then summarize this data, filling in the strains with a 96-element vector corresponding to the names of the strains across a plate, row-wise.
+We can now see an instance where all values of a trait (`n.sorted`) were equivalent and therefore the correlation could not be calculated. Tiles for these traits are all set to gray.
+
+If we now transition to some new data, representing an experiment in which drug dose response curves were measured, we can utilize the last plot function in the package, `plotDR`. We will first load in our example data set, called `doseData` into the variable `dosesRaw`. We will then summarize this data, filling in the strains with a 96-element vector corresponding to the names of the strains across a plate, row-wise.
 
 ```{r}
 dosesRaw <- doseData
@@ -198,4 +200,4 @@ plotList$mean.EXT
 
 ## Conclusion
 
-The COPASutils package provides quick, streamlined tools for reading, processing, and plotting much of the data resulting from COPAS platform machines. Here we have analyzed data from several different experiments. Of course analysis pipelines for the data will change from project to project and the pipeline described here may or may not be the best fit for your data. COPASutils provides a very general and flexible work flow for COPAS data and should be easily adapted to your specific project.
+The COPASutils package provides quick, streamlined tools for reading, processing, and plotting data resulting from COPAS platform machines. Here we have analyzed data from several different experiments. Of course, analysis pipelines for the data will change from project to project and the pipeline described here may or may not be the best fit for your data. COPASutils provides a very general and flexible work flow for COPAS data and should be easily adaptable to your specific project.
