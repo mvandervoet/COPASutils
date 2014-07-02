@@ -83,6 +83,7 @@ readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=
 #' @param strains a vector of all strain (sample) names input row-wise to add to the data frame
 #' @param quantiles if TRUE, columns of trait quantiles (every fifth) will be added to the output dataframe, defaults to FALSE
 #' @param log if TRUE, columns of log transformed EXT and red fluorescence will be added to output dataframe, defaults to FALSE
+#' @param ends if TRUE, columns of min and max values for all traits will be added to output dataframe, defaults to FALSE
 #' @export
 
 summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends=FALSE) {

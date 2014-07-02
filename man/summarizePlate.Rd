@@ -14,6 +14,8 @@ summarizePlate(plate, strains = NULL, quantiles = FALSE, log = FALSE,
 \item{quantiles}{if TRUE, columns of trait quantiles (every fifth) will be added to the output dataframe, defaults to FALSE}
 
 \item{log}{if TRUE, columns of log transformed EXT and red fluorescence will be added to output dataframe, defaults to FALSE}
+
+\item{ends}{if TRUE, columns of min and max values for all traits will be added to output dataframe, defaults to FALSE}
 }
 \description{
 Returns a data frame with one row per well with summary statistics.
