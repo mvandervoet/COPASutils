@@ -1,3 +1,17 @@
+# To satisfy R CMD check --as-cran
+if(getRversion() >= "2.15.1")  utils::globalVariables(c(".", "Plate1", "Plate2",
+    "Correlation", "strain", "dose", "variable", "value", "label", "TOF", "EXT",
+    "red", "green", "yellow", "norm.EXT", "norm.red", "norm.green", "norm.yellow"))
+
+#' @docType package
+#' @importFrom reshape2 melt
+#' @importFrom stringr str_split
+#' @import dplyr
+#' @import knitr
+#' @import kernlab
+#' @import ggplot2
+NULL
+
 #' BioSorter
 #' 
 #' Raw data resulting from a BioSorter Machine with LP Sampler
@@ -12,7 +26,7 @@ NULL
 
 #' doseData
 #' 
-#' Data resulting from a dose response curve experiement
+#' Data resulting from a dose response curve experiment
 #' @name doseData
 NULL
 
@@ -30,13 +44,13 @@ NULL
 
 #' presentation
 #' 
-#' Data for making retty plots
+#' Data for making pretty plots
 #' @name presentation
 NULL
 
 #' Read in raw sorter data
 #' 
-#' Reads a raw sorter file into a dataframe, removing NA values and any objects not fitting in to the min and max cut offs.
+#' Reads a raw sorter file into a data frame, removing NA values and any objects not fitting in to the min and max cut offs.
 #' @param file path to sorter data file
 #' @param tofmin minimum cut off for time of flight, defaults to 0
 #' @param tofmax maximum cut off for time of flight, defaults to 10000
