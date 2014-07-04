@@ -26,59 +26,14 @@ library(COPASutils)
 
 ## Reading Data
 
-> **Note:** All of the raw .txt files referenced below are available at <https://github.com/AndersenLab/COPASutils-data>
-
-We can now read in the plate data from one of the example data sets. In this GWAS experimental design, each plate is set up with three worms sorted to each well in every other column. An example data set, called "plateData1.txt", that illustrates this step of the experiment is available from the Andersen Laboratory website (andersenlab.org). This text file is a representative example of raw data collected from a Union Biometrica BIOSORT large particle flow cytometer with ReFLx sampler. We will first read this file in and save it to a data frame called `setupRaw`:
-
-```{r echo=FALSE, message=FALSE}
-download.file("https://raw.githubusercontent.com/AndersenLab/COPASutils-data/master/plateData1.txt", "plateData1.txt", method="curl")
-download.file("https://raw.githubusercontent.com/AndersenLab/COPASutils-data/master/BioSorter.txt", "BioSorter.txt", method="curl")
-```
-
-
-```{r}
-setupRaw <- readPlate("plateData1.txt")
-```
-
-If we look at the head of this data frame we can begin to step through the different data that are output by the COPAS machine:
-
-```{r}
-head(setupRaw)
-```
-
-We can see that the COPAS machine groups the output data primarily by row and column of a 96-well plate, represented by the columns `row` and `col` in the above data frame. Each row in the data frame represents the readings for a single object. Working through the columns left to right, we see that the sorter returns the sort status of the object in the `sort` column (for our purposes, we are only concerned with instances where sort = 6, as these worms were sorted to the respective wells in the target plate; for a complete explanation of sort status codes, please consult the machine's user manual). We then see `TOF` which stands for "time of flight" or a measure of the length of the object in microns. Next is `EXT` or "extinction", a measure of the optical density of the object. Following this is the `time` column which represents the relative time from the first object sorted in each well. Using this scheme, the first object to pass through the flow cell for each well will therefore be assigned a time of 0. Next are the peak height values for each of the fluorescence channels, indicated by the `green`, `yellow`, and `red` columns. The next four columns contain the data for the normalized EXT, red, green, and yellow values (value/`TOF`). Lastly the columns `object` and `call50` represent data returned from the support vector machine (SVM) that probabilistically determines whether each "object" is actually an object (cell, worm, etc.) or a bubble. This feature is useful if the experiment, like ours, requires the bubble trap hardware to be bypassed. It is important to note that the SVM was trained on data from our own machine and that its efficacy should be tested against a user's own data before any user utilizes this feature. The `call50` column displays "object" if the probability of being an object (`object`) is greater than 0.5 or "bubble" otherwise.
-
-If you would like to remove the last two columns (*i.e.* read in data without the help of the SVM), you can set the `SVM` argument to FALSE, as below:
-
-```{r}
-setupRaw2 <- readPlate("plateData1.txt", SVM=FALSE)
-head(setupRaw2)
-```
-
-We can also set cutoffs for minimum and maximum time of flight and extinction values as such:
-
-```{r}
-setupRaw3 <- readPlate("plateData1.txt", tofmin=60, tofmax=1000, extmin=50, extmax=500)
-head(setupRaw3)
-```
-
-Lastly, we can read in a data file from a BioSorter machine, which utilizes the LP Sampler instead of the BIOSORT machine's ReFLx module. We can adjust the way in which the file is read to compensate for this difference by setting the `reflx` parameter to `FALSE`:
-
-```{r}
-biosorterData <- readPlate("BioSorter.txt", reflx=FALSE)
-head(biosorterData)
-```
-
-```{r echo=FALSE, message=FALSE}
-file.remove("plateData1.txt", "BioSorter.txt")
-```
-
+> **Note:** A detailed walkthrough of the `readPlate` function is available in the vignette hosted at AndersenLab.org/Research/Software or at AndersenLab.github.io/COPASutils
 
 ## Processing Data
 
-Now that we have read our raw data into R using the `readPlate` function, we probably want to summarize the data by well. For instance, in the GWAS experiment from we which are examining the data, we would like three worms be sorted into each well in every other column. We can check these sort data. To summarize the data we can use the `summarizePlate` function:
+We will begin by loading one of the attached data sets `plateData1` into the variable `setupRaw`. This data set represents the raw data from the setup of plate used in a Genome Wide Association Study with the worm *Caenorhabditis elegans*. Now that we have our raw data, we would probably to get a nice overview of how our setup went (i.e. summary statistics by well). For instance, in the GWAS experiment from we which are examining the data, we would like three worms be sorted into each well in every other column. We can check these sort data. To summarize the data we can use the `summarizePlate` function:
 
 ```{r warning=FALSE}
+setupRaw <- plateData1
 setupSummarized <- summarizePlate(setupRaw)
 colnames(setupSummarized)
 ```
