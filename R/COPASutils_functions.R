@@ -138,7 +138,7 @@ readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=
 #' @examples
 #' exampleStrains <- rep(c("N2", NA), times=48)
 #' plate1 <- summarizePlate(plateData1, quantiles=TRUE, log=TRUE, ends=TRUE)
-#' plate2 <- summarizePlate(plateData2, srains=exampleStrains)
+#' plate2 <- summarizePlate(plateData2, strains=exampleStrains)
 
 summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends=FALSE) {
     plate <- plate[as.character(plate$call50)=="object" | plate$TOF==-1 | is.na(as.character(plate$call50)),]
