@@ -16,13 +16,13 @@ plotCompare(plates, trait, plateNames = NULL)
 Plot the value (bar plot, if summarized) or distribution (boxplot, if unsummarized) of the data from each well across multiple plates.
 }
 \examples{
-# COPASutils Figures
-# Figure 3a
-plotCompare(list(doseData, plateData2), "TOF")
+#### COPASutils Figures
+### Figure 3a
+# plotCompare(list(doseData, plateData2), "TOF")
 
-# Figure 3b
-sumDose <- summarizePlate(doseData)
-sumPlate <- summarizePlate(plateData2)
-plotCompare(list(sumDose, sumPlate), "n")
+### Figure 3b
+# sumDose <- summarizePlate(doseData)
+# sumPlate <- summarizePlate(plateData2)
+# plotCompare(list(sumDose, sumPlate), "n")
 }
 

@@ -16,7 +16,7 @@ removeWells(plate, badWells, drop = FALSE)
 Returns a data frame representing a plate with bad wells removed (either with phenotype variables set to NA or rows dropped entirely).
 }
 \examples{
-plate <- summarizePlate(plateData1)
-plateWithoutWells <- removeWells(plate=plate, badWells=c("A1", "A2", "A3"))
+# plate <- summarizePlate(plateData1)
+# plateWithoutWells <- removeWells(plate=plate, badWells=c("A1", "A2", "A3"))
 }
 

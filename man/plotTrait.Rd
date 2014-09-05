@@ -18,15 +18,15 @@ plotTrait(plate, trait, trait2 = NULL, type = "heat")
 Returns ggplot2 object that is faceted by row and column. By default, it will plot a heat map for the trait specified as a string. Other options include scatterplots and histograms.
 }
 \examples{
-# COPASutils Figures
-# Figure 1a
-plotTrait(doseData, trait="TOF", trait2="EXT", type="scatter")
+#### COPASutils Figures
+### Figure 1a
+#plotTrait(doseData, trait="TOF", trait2="EXT", type="scatter")
 
-# Figure 1b
-plotTrait(doseData, trait="TOF", type="hist")
+### Figure 1b
+#plotTrait(doseData, trait="TOF", type="hist")
 
-# Figure 1c
-sumDose <- summarizePlate(doseData)
-plotTrait(sumDose, trait="n", type="heat")
+### Figure 1c
+# sumDose <- summarizePlate(doseData)
+# plotTrait(sumDose, trait="n", type="heat")
 }
 

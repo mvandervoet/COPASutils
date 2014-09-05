@@ -16,10 +16,11 @@ plotDR(plate, dosages, trait = "n")
 Return a ggplot2 object of a dose response curve by strain across a plate
 }
 \examples{
-# Figure 5
-strains <- rep(c("A", "B", "C", "D"), each=6, times=4)
-sumDose <- summarizePlate(doseData, strains=strains)
-dose <- rep(c(1, 5, 10, 15, 20, NA), times=16)
-plotDR(sumDose, "n", dosages=dose)
+#### COPASutils figure
+### Figure 5
+# strains <- rep(c("A", "B", "C", "D"), each=6, times=4)
+# sumDose <- summarizePlate(doseData, strains=strains)
+# dose <- rep(c(1, 5, 10, 15, 20, NA), times=16)
+# plotDR(sumDose, "n", dosages=dose)
 }
 

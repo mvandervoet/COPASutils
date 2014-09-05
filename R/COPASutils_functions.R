@@ -136,9 +136,9 @@ readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=
 #' @param ends if TRUE, columns of min and max values for all traits will be added to output dataframe, defaults to FALSE
 #' @export
 #' @examples
-#' exampleStrains <- rep(c("N2", NA), times=48)
-#' plate1 <- summarizePlate(plateData1, quantiles=TRUE, log=TRUE, ends=TRUE)
-#' plate2 <- summarizePlate(plateData2, strains=exampleStrains)
+#' # exampleStrains <- rep(c("N2", NA), times=48)
+#' # plate1 <- summarizePlate(plateData1, quantiles=TRUE, log=TRUE, ends=TRUE)
+#' # plate2 <- summarizePlate(plateData2, strains=exampleStrains)
 
 summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends=FALSE) {
     plate <- plate[as.character(plate$call50)=="object" | plate$TOF==-1 | is.na(as.character(plate$call50)),]
@@ -330,8 +330,8 @@ summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends
 #' @param drop a logical value dictating whether to drop wells from the data frame or set measured values to NA, defaults to FALSE
 #' @export
 #' @examples
-#' plate <- summarizePlate(plateData1)
-#' plateWithoutWells <- removeWells(plate=plate, badWells=c("A1", "A2", "A3"))
+#' # plate <- summarizePlate(plateData1)
+#' # plateWithoutWells <- removeWells(plate=plate, badWells=c("A1", "A2", "A3"))
 
 removeWells <- function(plate, badWells, drop=FALSE) {
     sp.bw <- str_split(badWells, "", 3)
@@ -365,16 +365,16 @@ removeWells <- function(plate, badWells, drop=FALSE) {
 #' @param type the type of plot, either "heat" for heatmap, "scatter" for scatter plot, or "hist" for histogram, defaults to "heat"
 #' @export
 #' @examples
-#' # COPASutils Figures
-#' # Figure 1a 
-#' plotTrait(doseData, trait="TOF", trait2="EXT", type="scatter")
+#' #### COPASutils Figures
+#' ### Figure 1a 
+#' #plotTrait(doseData, trait="TOF", trait2="EXT", type="scatter")
 #' 
-#' # Figure 1b
-#' plotTrait(doseData, trait="TOF", type="hist")
+#' ### Figure 1b
+#' #plotTrait(doseData, trait="TOF", type="hist")
 #' 
-#' # Figure 1c
-#' sumDose <- summarizePlate(doseData)
-#' plotTrait(sumDose, trait="n", type="heat") 
+#' ### Figure 1c
+#' # sumDose <- summarizePlate(doseData)
+#' # plotTrait(sumDose, trait="n", type="heat") 
 
 plotTrait = function(plate, trait, trait2=NULL, type="heat"){
     if(type == "heat"){
@@ -422,12 +422,12 @@ fillWells = function(plate){
 #' @param plate2 an optional summarized plate to compare plate1 to, defaults to plate1 if no argument is entered plate1 will be compared to itself
 #' @export
 #' @examples
-#' # COPASutils Figures
-#' # Figure 4
-#' library(dplyr)
-#' sumDose <- summarizePlate(doseData)
-#' corDose <- select(sumDose, -n.sorted)
-#' plotCorMatrix(corDose)
+#' #### COPASutils Figures
+#' ### Figure 4
+#' # library(dplyr)
+#' # sumDose <- summarizePlate(doseData)
+#' # corDose <- select(sumDose, -n.sorted)
+#' # plotCorMatrix(corDose)
 
 plotCorMatrix = function(plate1, plate2=plate1){
     plate1 = fillWells(plate1)
@@ -487,14 +487,14 @@ edgeEffect = function(plate, trait=NULL){
 #' @param plateNames an optional character vector with the names of the individual plates; if no names are entered, numbers will be used in the order the data frames are entered
 #' @export
 #' @examples
-#' # COPASutils Figures
-#' # Figure 3a
-#' plotCompare(list(doseData, plateData2), "TOF")
+#' #### COPASutils Figures
+#' ### Figure 3a
+#' # plotCompare(list(doseData, plateData2), "TOF")
 #' 
-#' # Figure 3b
-#' sumDose <- summarizePlate(doseData)
-#' sumPlate <- summarizePlate(plateData2)
-#' plotCompare(list(sumDose, sumPlate), "n")
+#' ### Figure 3b
+#' # sumDose <- summarizePlate(doseData)
+#' # sumPlate <- summarizePlate(plateData2)
+#' # plotCompare(list(sumDose, sumPlate), "n")
 
 plotCompare = function(plates, trait, plateNames=NULL){
     if(!is.null(plateNames) & length(plateNames) != length(plates)){
@@ -528,11 +528,12 @@ plotCompare = function(plates, trait, plateNames=NULL){
 #' @param trait the trait to be plotted on the y axis
 #' @export
 #' @examples
-#' # Figure 5
-#' strains <- rep(c("A", "B", "C", "D"), each=6, times=4)
-#' sumDose <- summarizePlate(doseData, strains=strains)
-#' dose <- rep(c(1, 5, 10, 15, 20, NA), times=16)
-#' plotDR(sumDose, "n", dosages=dose)
+#' #### COPASutils figure
+#' ### Figure 5
+#' # strains <- rep(c("A", "B", "C", "D"), each=6, times=4)
+#' # sumDose <- summarizePlate(doseData, strains=strains)
+#' # dose <- rep(c(1, 5, 10, 15, 20, NA), times=16)
+#' # plotDR(sumDose, "n", dosages=dose)
 
 plotDR = function(plate, dosages, trait="n"){
     plate = data.frame(cbind(dose = dosages, plate))

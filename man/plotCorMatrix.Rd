@@ -14,11 +14,11 @@ plotCorMatrix(plate1, plate2 = plate1)
 Returns a ggplot2 object of a correlation plot for all traits within a single plate or between two plates. Plates must be summarized before being passed to the function.
 }
 \examples{
-# COPASutils Figures
-# Figure 4
-library(dplyr)
-sumDose <- summarizePlate(doseData)
-corDose <- select(sumDose, -n.sorted)
-plotCorMatrix(corDose)
+#### COPASutils Figures
+### Figure 4
+# library(dplyr)
+# sumDose <- summarizePlate(doseData)
+# corDose <- select(sumDose, -n.sorted)
+# plotCorMatrix(corDose)
 }
 

@@ -21,8 +21,8 @@ summarizePlate(plate, strains = NULL, quantiles = FALSE, log = FALSE,
 Returns a data frame with one row per well with summary statistics.
 }
 \examples{
-exampleStrains <- rep(c("N2", NA), times=48)
-plate1 <- summarizePlate(plateData1, quantiles=TRUE, log=TRUE, ends=TRUE)
-plate2 <- summarizePlate(plateData2, strains=exampleStrains)
+# exampleStrains <- rep(c("N2", NA), times=48)
+# plate1 <- summarizePlate(plateData1, quantiles=TRUE, log=TRUE, ends=TRUE)
+# plate2 <- summarizePlate(plateData2, strains=exampleStrains)
 }
 
