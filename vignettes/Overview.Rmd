@@ -26,11 +26,19 @@ library(COPASutils)
 
 ## Reading Data
 
-> **Note:** A detailed walkthrough of the `readPlate` function is available in the vignette hosted at AndersenLab.org/Research/Software or at AndersenLab.github.io/COPASutils
+> **Note:** A detailed walkthrough of the `readPlate` function is available in the vignette hosted at AndersenLab.org/Research/Software.
+
+### Training the SVM of readPlate
+
+The support vector machine utilized in the readPlate function must be trained on each COPAS or BioSorter device because internal parameters vary by device. To train the SVM, run two 96-well microtiter plates through your device. The first plate should contain only objects of interest with the bubble trap engaged, and the second plate should contain no objects of interest, less liquid per well, and have the bubble trap disengaged. These plates will generate object and bubble data, respectively. A variety of R packages (like `kernlab`) can be used to generate an SVM object for use with the readPlate function. The new function should be edited so as to utilize the new SVM object after the SVM is trained.
+
+### Normalized optical values
+
+The readPlate function will normalize the optical density and fluorescence values measured for every object. The COPAS device outputs integrated measures of each of these parameters. Therefore, larger objects always have increased optical density or fluorescence values. To better represent the optical density or fluorescence of individual objects, we divide each parameter by the length (time of flight) for every object recorded. This normalization allows the researcher to determine if objects of different size also have different optical density and fluorescence.
 
 ## Processing Data
 
-We will begin by loading one of the attached data sets `plateData1` into the variable `setupRaw`. This data set represents the raw data from the setup of plate used in a Genome Wide Association Study with the worm *Caenorhabditis elegans*. Now that we have our raw data, we would probably to get a nice overview of how our setup went (i.e. summary statistics by well). For instance, in the GWAS experiment from we which are examining the data, we would like three worms be sorted into each well in every other column. We can check these sort data. To summarize the data we can use the `summarizePlate` function:
+We will begin by loading one of the attached data sets `plateData1` into the variable `setupRaw`. This data set represents the raw data from the setup of plate used in a Genome Wide Association Study with the worm *Caenorhabditis elegans*. Now that we have our raw data, we would probably to get a nice overview of how our setup went (i.e. summary statistics by well). For instance, in the GWAS experiment from we which are examining the data, we would like three worms be sorted into each well in every other column. We can check these sort data. To summarize the data we can use the `summarizePlate` function. This function takes, as parameters, an unsummarized plate data frame as well as optional boolean values (TRUE or FALSE) for the `quantiles`, `log`, and `ends` arguments, denoting whether these measures of the distribution should be included:
 
 ```{r warning=FALSE}
 setupRaw <- plateData1
@@ -59,10 +67,12 @@ log transformed data            |  log           |  mean.log.red
 
 Some statistics, such as normalized and log values are calculated before the data are summarized and, as such, have a distribution of their own. For these traits, all mean, median, min, max and quantile data are available by stringing together names as in the above table.
 
+The readPlate function will also normalize the optical density and fluorescence values measured for every object. The device outputs integrated measures of each of these parameters. Therefore, larger objects always have increased optical density or fluorescence values. To better represent the optical density or fluorescence of individual objects, we divide each parameter by the length (time of flight) for every object recorded. This normalization allows the researcher to determine if objects of different size also have different optical density and fluorescence.
+
 In the experiment we are examining here, it was desired that no worms be sorted into the wells in the even columns. Therefore, the data we are seeing in these columns are the result of background debris or accidental placement of worms into the wells. We now want to remove these wells before we continue with our analysis. Included in the package is the `removeWells` function, which does exactly what its name implies:
 
 ```{r}
-setupSummarized3 <- removeWells(setupSummarized, c("A2", "A4", "A6")) # All wells you want to remove need to be included here
+setupSummarized3 <- removeWells(setupSummarized, c("A2", "A4", "A6")) # All wells you want to remove need to be included here as a vector
 head(setupSummarized3[,1:10])
 ```
 
@@ -90,7 +100,7 @@ This function takes a summarized plate data frame and the name of the trait to t
 
 ## Plotting Data
 
-Now that we have access to both the unsummarized and summarized data, we would like to visualize the results from this plate. The plate in this example was set up with worms in every other column. To confirm that large populations only exist in every other columns, we will plot a heat map of the plate representing the population present in each well using the `plotTrait` function: 
+Now that we have access to both the unsummarized and summarized data, we would like to visualize the results from this plate. The plate in this example was set up with worms in every other column. To confirm that large populations only exist in every other columns, we will plot a heat map of the plate representing the population present in each well using the `plotTrait` function. This function takes a summarized or unsummarized data frame as well as string indicating which trait to plot and optionally, the type of plot to make: 
 
 ```{r warning=FALSE, fig.width=10}
 plotTrait(setupSummarized, "n")
