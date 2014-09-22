@@ -3,15 +3,15 @@
 \alias{plotCorMatrix}
 \title{Plot a correlation matrix within a plate or between plates}
 \usage{
-plotCorMatrix(plate1, plate2 = plate1)
+plotCorMatrix(plate_summary1, plate_summary2 = plate_summary1)
 }
 \arguments{
-\item{plate1}{one summarized plate to compare in the correlation matrix}
+\item{plate_summary1}{one summarized plate to compare in the correlation matrix}
 
-\item{plate2}{an optional summarized plate to compare plate1 to, defaults to plate1 if no argument is entered plate1 will be compared to itself}
+\item{plate_summary2}{an optional summarized plate to compare with plate_summary1, defaults to plate_summary1; if no argument is entered plate_summary1 will be compared to itself}
 }
 \description{
-Returns a ggplot2 object of a correlation plot for all traits within a single plate or between two plates. Plates must be summarized before being passed to the function.
+Returns a ggplot2 object of a correlation plot for all traits within a single plate or between two plates. The data from each plate must be summarized prior to being passed to this function.
 }
 \examples{
 #### COPASutils Figures

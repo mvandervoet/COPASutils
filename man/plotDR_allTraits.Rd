@@ -3,10 +3,10 @@
 \alias{plotDR_allTraits}
 \title{Plot dose response curves for all traits}
 \usage{
-plotDR_allTraits(plate, dosages)
+plotDR_allTraits(plate_summary, dosages)
 }
 \arguments{
-\item{plate}{the plate data frame to be plotted}
+\item{plate_summary}{the summarized plate data frame to be plotted}
 
 \item{dosages}{a vector of dosages in the plate, entered by row}
 }

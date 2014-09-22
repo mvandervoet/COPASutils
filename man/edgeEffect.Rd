@@ -3,10 +3,10 @@
 \alias{edgeEffect}
 \title{Detect edge effects on 96-well plates}
 \usage{
-edgeEffect(plate, trait = NULL)
+edgeEffect(plate_summary, trait = NULL)
 }
 \arguments{
-\item{plate}{a summarized and filled plate data frame}
+\item{plate_summary}{a summarized and filled plate data frame}
 
 \item{trait}{a singular trait to test, defaults to NULL and will test all traits}
 }

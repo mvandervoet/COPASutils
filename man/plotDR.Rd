@@ -3,10 +3,10 @@
 \alias{plotDR}
 \title{Plot a dose response curve by strain across a plate}
 \usage{
-plotDR(plate, dosages, trait = "n")
+plotDR(plate_summary, dosages, trait = "n")
 }
 \arguments{
-\item{plate}{the plate data frame to be plotted}
+\item{plate_summary}{the summarized plate data frame to be plotted}
 
 \item{dosages}{a vector of dosages in the plate, entered by row}
 
