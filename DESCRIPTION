@@ -1,6 +1,6 @@
 Package: COPASutils
 Title: Tools for processing COPAS large-particle flow cytometer data
-Version: 0.1.3
+Version: 0.1.4
 Author: Tyler Shimko <TShimko126@gmail.com>, Erik Andersen
     <erik.andersen@northwestern.edu>
 Maintainer: Erik Andersen <erik.andersen@northwestern.edu>

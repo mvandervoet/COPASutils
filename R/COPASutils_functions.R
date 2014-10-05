@@ -1,7 +1,8 @@
 # To satisfy R CMD check --as-cran
 if(getRversion() >= "2.15.1")  utils::globalVariables(c(".", "Plate1", "Plate2",
     "Correlation", "strain", "dose", "variable", "value", "label", "TOF", "EXT",
-    "red", "green", "yellow", "norm.EXT", "norm.red", "norm.green", "norm.yellow"))
+    "red", "green", "yellow", "norm.EXT", "norm.red", "norm.green", "norm.yellow",
+    "presentation", "bubbleSVMmodel_noProfiler"))
 
 #' @docType package
 #' @importFrom reshape2 melt
@@ -62,7 +63,7 @@ NULL
 readSorter <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, reflx=TRUE)  {
     data <- read.delim(file=file, header=T, na.strings=c("n/a"), as.is=T, stringsAsFactors=F)
     if(is.null(data$EXT) & reflx){
-        stop("This file appears to have come from a machine with an LP Sampler, not a reflex module. Please set `reflx` = FALSE and try again.")
+        stop("This file appears to have come from a machine with an LP Sampler, not a ReFLx module. Please set `reflx` = FALSE and try again.")
     }
     data <- data[!is.na(data$TOF),]
     data <- data[,!is.na(data[1,])]
@@ -377,6 +378,7 @@ removeWells <- function(plate, badWells, drop=FALSE) {
 #' # plotTrait(sumDose, trait="n", type="heat") 
 
 plotTrait = function(plate, trait, trait2=NULL, type="heat"){
+    plate = data.frame(plate)
     if(type == "heat"){
         plate$label <- ifelse(is.na(plate[,which(colnames(plate)==trait)]), "", plate[,which(colnames(plate)==trait)])
         plot = ggplot(plate) + geom_rect(aes_string(xmin=0,xmax=5,ymin=0,ymax=5,fill=trait)) +
@@ -454,6 +456,7 @@ plotCorMatrix = function(plate_summary1, plate_summary2=plate_summary1){
 #' @export
 
 edgeEffect = function(plate_summary, trait=NULL){
+    plate_summary = data.frame(plate_summary)
     if(nrow(plate_summary) != 96){
         stop("plate_summary must be summarized and filled first")
     }
@@ -541,7 +544,7 @@ plotDR = function(plate_summary, dosages, trait="n"){
     plate_summary = plate_summary[!is.na(plate_summary$strain)&!is.na(plate_summary$dose),]
     plate_summary = melt(plate_summary, id=c("strain", "dose"))
     plate_summary = plate_summary %>% group_by(strain, dose, variable) %>% summarize(mean = mean(value))
-    plate_summary = dcast(plate_summary, strain+dose~variable, value.var="mean")
+    plate_summary = reshape2::dcast(plate_summary, strain+dose~variable, value.var="mean")
     ggplot(plate_summary, aes_string(x="dose", y=trait, colour="strain")) + geom_point() + geom_line() + scale_colour_discrete(name="Strain") + xlab("Dose") + ylab(trait)
 }
 
