@@ -114,7 +114,7 @@ readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=
     } else {
         modplate <- with(plate, data.frame(row=Row, col=as.factor(Column), sort=Sorted.status, TOF=TOF, EXT=Extinction, time=Time, green=Green, yellow=Yellow, red=Red))
     }
-    modplate <- modplate %>% group_by(row, col) %>% do(extractTime(.))
+    modplate <- modplate %>% group_by(row, col) %>% do(extractTime(.)) %>% data.frame()
     modplate[,10:13] <- apply(modplate[,c(5, 7:9)], 2, function(x){x/modplate$TOF})
     colnames(modplate)[10:13] <- c("norm.EXT", "norm.green", "norm.yellow", "norm.red")
     if(SVM){
