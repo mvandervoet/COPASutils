@@ -77,8 +77,9 @@ readSorter <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, ref
         data$Column <- as.factor(data$Column)
         data$Row <- as.factor(data$Row)
     }
-    levels(data$Row) <- LETTERS[1:8]
-    levels(data$Column) <- 1:12
+    #removed the following two lines because in cases where a plate was interrupted during sort/score and two files exist for a certain plate the Row and Column data were defaulting to start at row A and col 1. This messes with plate stitching.
+    #levels(data$Row) <- LETTERS[1:8]
+    #levels(data$Column) <- 1:12
     return(data)
 }
 
