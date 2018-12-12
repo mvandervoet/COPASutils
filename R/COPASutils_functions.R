@@ -1,6 +1,6 @@
 # To satisfy R CMD check --as-cran
 if(getRversion() >= "2.15.1")  utils::globalVariables(c(".", "Plate1", "Plate2",
-    "Correlation", "strain", "dose", "variable", "value", "label", "TOF", "EXT",
+    "Correlation", "strain", "dose", "compound", "concentration", "variable", "value", "label", "TOF", "EXT",
     "red", "green", "yellow", "norm.EXT", "norm.red", "norm.green", "norm.yellow",
     "presentation", "bubbleSVMmodel_noProfiler"))
 
@@ -133,6 +133,8 @@ readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=
 #' Returns a data frame with one row per well with summary statistics.
 #' @param plate plate to summarize, must be run through readSorterData, not readSorter
 #' @param strains a vector of all strain (sample) names input row-wise to add to the data frame
+#' @param compounds a vector of all compound (sample) names input row-wise to add to the data frame
+#' @param concentrations a vector of all concentration (compound) values input row-wise to add to the data frame
 #' @param quantiles if TRUE, columns of trait quantiles (every fifth) will be added to the output dataframe, defaults to FALSE
 #' @param log if TRUE, columns of log transformed EXT and red fluorescence will be added to output dataframe, defaults to FALSE
 #' @param ends if TRUE, columns of min and max values for all traits will be added to output dataframe, defaults to FALSE
@@ -142,7 +144,7 @@ readPlate <- function(file, tofmin=0, tofmax=10000, extmin=0, extmax=10000, SVM=
 #' # plate1 <- summarizePlate(plateData1, quantiles=TRUE, log=TRUE, ends=TRUE)
 #' # plate2 <- summarizePlate(plateData2, strains=exampleStrains)
 
-summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends=FALSE) {
+summarizePlate <- function(plate, strains=NULL, compounds=NULL, concentrations=NULL, quantiles=FALSE, log=FALSE, ends=FALSE) {
     plate <- plate[as.character(plate$call50)=="object" | plate$TOF==-1 | is.na(as.character(plate$call50)),]
     plate <- fillWells(plate)
     plate[2:14] <- lapply(plate[2:14], as.numeric)
@@ -319,6 +321,20 @@ summarizePlate <- function(plate, strains=NULL, quantiles=FALSE, log=FALSE, ends
         analysis <- data.frame(strain = as.character(strains), processed)
         analysis <- analysis[order(analysis$strain),]
         analysis <- analysis[order(analysis$row, analysis$col),]
+    }
+    if(is.null(compounds)){
+      analysis <- analysis[order(analysis$row, analysis$col),]
+    } else {
+      analysis <- data.frame(compound = as.character(compounds), processed)
+      analysis <- analysis[order(analysis$compound),]
+      analysis <- analysis[order(analysis$row, analysis$col),]
+    }
+    if(is.null(concentrations)){
+      analysis <- analysis[order(analysis$row, analysis$col),]
+    } else {
+      analysis <- data.frame(concentration = as.numeric(concentrations), analysis)
+      analysis <- analysis[order(analysis$concentration),]
+      analysis <- analysis[order(analysis$row, analysis$col),]
     }
     analysis[analysis$mean.TOF==-1 | is.na(analysis$mean.TOF),which(colnames(analysis)=="n"):ncol(analysis)] <- NA
     return(analysis)
