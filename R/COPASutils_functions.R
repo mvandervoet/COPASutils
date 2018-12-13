@@ -400,20 +400,20 @@ plotTrait = function(plate, trait, trait2=NULL, type="heat"){
     if(type == "heat"){
         plate$label <- ifelse(is.na(plate[,which(colnames(plate)==trait)]), "", plate[,which(colnames(plate)==trait)])
         plot = ggplot(plate) + geom_rect(aes_string(xmin=0,xmax=5,ymin=0,ymax=5,fill=trait)) +
-               geom_text(aes(x=2.5,y=2.5,label=label, colour="white"), colour="white")+presentation +
+               geom_text(aes(x=2.5,y=2.5,label=label, colour="white"), colour="white") +
                theme(axis.ticks.x=element_blank(), axis.ticks.y=element_blank(), axis.text.x=element_blank(), axis.text.y=element_blank()) +
-               xlab("Columns") + ylab("Rows")
+               xlab("Columns") + ylab("Rows") + theme(plot.title = element_text(hjust = 0.5))
     } else if(type == "scatter"){
-        plot = ggplot(plate) + geom_point(aes_string(x = trait, y = trait2), size=1.5) + presentation + xlab(trait) + ylab(trait2) +
-               theme(axis.text.x=element_text(size="10", angle=45, hjust=1), axis.text.y=element_text(size="10"))
+        plot = ggplot(plate) + geom_point(aes_string(x = trait, y = trait2), size=1, alpha=1/2) + xlab(trait) + ylab(trait2) +
+               theme(axis.text.x=element_text(size="8", angle=45, hjust=1), axis.text.y=element_text(size="8"))
     } else if(type == "hist"){
         if(sum(is.na(plate[,which(colnames(plate)==trait)])) > 0){
             badWells = plate[is.na(plate[,which(colnames(plate)==trait)]),c("row", "col")]
             badWells = paste0(badWells$row, badWells$col)
             plate = removeWells(plate, badWells, drop=TRUE)
         }
-        plot = ggplot(plate) + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/15) + presentation + xlab(trait) + ylab("Count") +
-               theme(axis.text.x=element_text(size="10", angle=45, hjust=1), axis.text.y=element_text(size="10"))
+        plot = ggplot(plate) + geom_histogram(aes_string(x = trait), binwidth = diff(range(plate[[trait]]))/15) + xlab(trait) + ylab("Count") +
+               theme(axis.text.x=element_text(size="8", angle=45, hjust=1), axis.text.y=element_text(size="8"))
     } else {
         stop("Unrecognized plot type")
     }
